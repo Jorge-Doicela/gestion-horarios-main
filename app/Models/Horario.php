@@ -53,4 +53,15 @@ class Horario extends Model
     {
         return $this->belongsTo(PeriodoAcademico::class, 'periodo_academico_id');
     }
+
+    public function conflictos()
+    {
+        return $this->hasMany(Conflicto::class);
+    }
+
+    public function restricciones()
+    {
+        return $this->hasMany(Restriccion::class, 'referencia_id', 'docente_id');
+        // luego ajustaremos para paralelos y espacios según tipo
+    }
 }

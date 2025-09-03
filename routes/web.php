@@ -11,7 +11,8 @@ use App\Http\Controllers\ParaleloController;
 use App\Http\Controllers\DocenteController;
 use App\Http\Controllers\EspacioController;
 use App\Http\Controllers\PeriodoAcademicoController;
-use App\Http\Controllers\HorarioController; // <- añadido
+use App\Http\Controllers\HorarioController;
+use App\Http\Controllers\RestriccionController;
 use Illuminate\Support\Facades\Route;
 
 // Ruta pública inicial
@@ -31,7 +32,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// Rutas de administración (Usuarios, Roles, Permisos) solo para Administrador
+// Rutas de administración (Usuarios, Roles, Permisos, Restricciones) solo para Administrador
 Route::middleware(['auth', 'role:Administrador'])
     ->prefix('admin')
     ->name('admin.')
@@ -39,6 +40,7 @@ Route::middleware(['auth', 'role:Administrador'])
         Route::resource('users', UserController::class);
         Route::resource('roles', RoleController::class);
         Route::resource('permissions', PermissionController::class);
+        Route::resource('restricciones', RestriccionController::class); // <-- añadido
     });
 
 // Rutas de carreras y niveles (Administrador)
