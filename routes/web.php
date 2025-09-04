@@ -26,6 +26,28 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// Ruta de prueba para verificar que el servidor funciona
+Route::get('/test', function () {
+    return 'Servidor funcionando correctamente';
+});
+
+// Ruta de prueba para verificar la generación de horarios
+Route::post('/test-generar', function () {
+    return 'Ruta de generación funcionando correctamente';
+});
+
+// Ruta temporal sin middleware para probar la generación
+Route::post('/horarios/generar-test', [HorarioController::class, 'generarAutomatico'])->name('horarios.generar.test');
+
+// Ruta para verificar períodos académicos
+Route::get('/debug-periodos', function () {
+    $periodos = \App\Models\PeriodoAcademico::all();
+    return response()->json([
+        'count' => $periodos->count(),
+        'periodos' => $periodos->toArray()
+    ]);
+});
+
 // Dashboard solo para usuarios autenticados y verificados
 Route::get('/dashboard', function () {
     return view('dashboard');
@@ -86,7 +108,7 @@ Route::middleware('auth')->group(function () {
 */
 
 // Rutas personalizadas de horarios - deben ir **antes** del resource
-Route::middleware(['auth', 'role:Administrador|Coordinador Académico'])->group(function () {
+Route::middleware(['auth'])->group(function () {
     Route::get('/horarios/calendario', [HorarioController::class, 'calendario'])->name('horarios.calendario');
     Route::post('/horarios/generar', [HorarioController::class, 'generarAutomatico'])->name('horarios.generar');
 

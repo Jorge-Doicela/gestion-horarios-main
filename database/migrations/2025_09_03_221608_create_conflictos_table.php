@@ -10,9 +10,9 @@ class CreateConflictosTable extends Migration
     {
         Schema::create('conflictos', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('horario_id')->constrained('horarios')->onDelete('cascade');
-            $table->enum('tipo', ['docente', 'paralelo', 'espacio'])->default('docente');
-            $table->text('descripcion'); // Detalle del conflicto
+            $table->foreignId('horario_id')->nullable()->constrained('horarios')->onDelete('cascade');
+            $table->enum('tipo', ['docente', 'paralelo', 'espacio', 'generacion'])->default('docente');
+            $table->text('motivo'); // Detalle del conflicto
             $table->timestamps();
         });
     }

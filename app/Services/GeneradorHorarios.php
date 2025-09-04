@@ -123,7 +123,7 @@ class GeneradorHorarios
                 Conflicto::create([
                     'horario_id' => null,
                     'tipo' => 'generacion',
-                    'descripcion' => $mensaje,
+                    'motivo' => $mensaje,
                 ]);
             }
 

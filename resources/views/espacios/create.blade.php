@@ -1,83 +1,44 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container mx-auto p-4">
-        <h1 class="text-2xl font-bold mb-4">Crear Espacio</h1>
-
-        <form action="{{ route('espacios.store') }}" method="POST" class="space-y-4">
-            @csrf
-
-            <div>
-                <label class="block font-medium">Nombre</label>
-                <input type="text" name="nombre" value="{{ old('nombre') }}" class="border rounded px-2 py-1 w-full">
-                @error('nombre')
-                    <span class="text-red-600">{{ $message }}</span>
-                @enderror
-            </div>
-
-            <div>
-                <label class="block font-medium">Tipo</label>
-                <select name="tipo" class="border rounded px-2 py-1 w-full">
-                    @foreach (['aula', 'laboratorio', 'cancha', 'aula interactiva', 'otro'] as $tipo)
-                        <option value="{{ $tipo }}" {{ old('tipo') == $tipo ? 'selected' : '' }}>
-                            {{ ucfirst($tipo) }}</option>
-                    @endforeach
-                </select>
-                @error('tipo')
-                    <span class="text-red-600">{{ $message }}</span>
-                @enderror
-            </div>
-
-            <div>
-                <label class="block font-medium">Modalidad</label>
-                <select name="modalidad" class="border rounded px-2 py-1 w-full">
-                    @foreach (['presencial', 'virtual', 'hibrida'] as $modalidad)
-                        <option value="{{ $modalidad }}" {{ old('modalidad') == $modalidad ? 'selected' : '' }}>
-                            {{ ucfirst($modalidad) }}</option>
-                    @endforeach
-                </select>
-                @error('modalidad')
-                    <span class="text-red-600">{{ $message }}</span>
-                @enderror
-            </div>
-
-            <div>
-                <label class="block font-medium">Capacidad</label>
-                <input type="number" name="capacidad" value="{{ old('capacidad', 0) }}"
-                    class="border rounded px-2 py-1 w-full">
-                @error('capacidad')
-                    <span class="text-red-600">{{ $message }}</span>
-                @enderror
-            </div>
-
-            <div>
-                <label class="block font-medium">Ubicación</label>
-                <input type="text" name="ubicacion" value="{{ old('ubicacion') }}"
-                    class="border rounded px-2 py-1 w-full">
-            </div>
-
-            <div>
-                <label class="inline-flex items-center">
-                    <input type="checkbox" name="disponible" value="1" {{ old('disponible', true) ? 'checked' : '' }}
-                        class="mr-2"> Disponible
-                </label>
-            </div>
-
-            <div>
-                <label class="block font-medium">Equipamiento</label>
-                @php $equipamientos = ['Proyector','Computadoras','Pizarra','Internet','Laboratorio']; @endphp
-                <div class="space-x-2">
-                    @foreach ($equipamientos as $item)
-                        <label class="inline-flex items-center">
-                            <input type="checkbox" name="equipamiento[]" value="{{ $item }}" class="mr-2"
-                                {{ is_array(old('equipamiento')) && in_array($item, old('equipamiento')) ? 'checked' : '' }}>
-                            {{ $item }}
-                        </label>
-                    @endforeach
+    <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 py-8">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Header -->
+            <div class="text-center mb-8 animate-fade-in-up">
+                <div class="w-16 h-16 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                    </svg>
                 </div>
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">Crear Nuevo Espacio</h1>
+                <p class="text-gray-600">Registre un nuevo espacio en el sistema de horarios</p>
             </div>
 
-            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Crear</button>
-        </form>
+            <!-- Error Messages -->
+            @if ($errors->any())
+                <div class="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-xl mb-6 animate-fade-in-up" style="animation-delay: 0.1s;">
+                    <div class="flex items-start">
+                        <svg class="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <div>
+                            <h3 class="font-semibold mb-2">Por favor, corrija los siguientes errores:</h3>
+                            <ul class="list-disc list-inside space-y-1">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            <!-- Form Card -->
+            <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-white/20 p-8 animate-fade-in-up" style="animation-delay: 0.2s;">
+                <form action="{{ route('espacios.store') }}" method="POST" class="space-y-6">
+                    @include('espacios.form')
+                </form>
+            </div>
+        </div>
     </div>
 @endsection

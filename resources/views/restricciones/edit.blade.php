@@ -1,68 +1,206 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container">
-        <h1>Editar Restricción</h1>
-
-        <form method="POST" action="{{ route('restricciones.update', $restriccion->id) }}">
-            @csrf
-            @method('PUT')
-
-            <div class="mb-3">
-                <label>Tipo</label>
-                <select name="tipo" class="form-select" required>
-                    @foreach ($tipos as $tipo)
-                        <option value="{{ $tipo }}" {{ $restriccion->tipo == $tipo ? 'selected' : '' }}>
-                            {{ ucfirst($tipo) }}</option>
-                    @endforeach
-                </select>
+    <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 py-8">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Header -->
+            <div class="text-center mb-8 animate-fade-in-up">
+                <div class="w-16 h-16 bg-gradient-to-br from-cyan-600 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                    </svg>
+                </div>
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">Editar Restricción</h1>
+                <p class="text-gray-600">Modifique la información de la restricción: <span class="font-semibold text-cyan-600">{{ $restriccion->clave }}</span></p>
             </div>
 
-            <div class="mb-3">
-                <label>Referencia</label>
-                <select name="referencia_id" class="form-select" required>
-                    <optgroup label="Docentes">
-                        @foreach ($docentes as $d)
-                            <option value="{{ $d->id }}"
-                                {{ $restriccion->tipo == 'docente' && $restriccion->referencia_id == $d->id ? 'selected' : '' }}>
-                                {{ $d->nombre }}</option>
-                        @endforeach
-                    </optgroup>
-                    <optgroup label="Aulas">
-                        @foreach ($aulas as $a)
-                            <option value="{{ $a->id }}"
-                                {{ $restriccion->tipo == 'aula' && $restriccion->referencia_id == $a->id ? 'selected' : '' }}>
-                                {{ $a->nombre }}</option>
-                        @endforeach
-                    </optgroup>
-                    <optgroup label="Materias">
-                        @foreach ($materias as $m)
-                            <option value="{{ $m->id }}"
-                                {{ $restriccion->tipo == 'materia' && $restriccion->referencia_id == $m->id ? 'selected' : '' }}>
-                                {{ $m->nombre }}</option>
-                        @endforeach
-                    </optgroup>
-                    <optgroup label="Estudiantes">
-                        @foreach ($estudiantes as $e)
-                            <option value="{{ $e->id }}"
-                                {{ $restriccion->tipo == 'estudiante' && $restriccion->referencia_id == $e->id ? 'selected' : '' }}>
-                                {{ $e->name }}</option>
-                        @endforeach
-                    </optgroup>
-                </select>
-            </div>
+            <!-- Error Messages -->
+            @if ($errors->any())
+                <div class="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-xl mb-6 animate-fade-in-up" style="animation-delay: 0.1s;">
+                    <div class="flex items-start">
+                        <svg class="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <div>
+                            <h3 class="font-semibold mb-2">Por favor, corrija los siguientes errores:</h3>
+                            <ul class="list-disc list-inside space-y-1">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            @endif
 
-            <div class="mb-3">
-                <label>Clave</label>
-                <input type="text" name="clave" class="form-control" value="{{ $restriccion->clave }}" required>
-            </div>
+            <!-- Form Card -->
+            <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-white/20 p-8 animate-fade-in-up" style="animation-delay: 0.2s;">
+                <form method="POST" action="{{ route('restricciones.update', $restriccion->id) }}" class="space-y-6">
+                    @csrf
+                    @method('PUT')
 
-            <div class="mb-3">
-                <label>Valor</label>
-                <input type="text" name="valor" class="form-control" value="{{ $restriccion->valor }}" required>
-            </div>
+                    <!-- Basic Information Section -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Tipo Field -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700">
+                                <span class="flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                                    </svg>
+                                    Tipo de Restricción
+                                </span>
+                            </label>
+                            <select name="tipo" required
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm">
+                                @foreach ($tipos as $tipo)
+                                    <option value="{{ $tipo }}" {{ old('tipo', $restriccion->tipo) == $tipo ? 'selected' : '' }}>
+                                        {{ ucfirst($tipo) }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('tipo')
+                                <span class="text-red-600 text-sm">{{ $message }}</span>
+                            @enderror
+                        </div>
 
-            <button class="btn btn-success">Actualizar</button>
-        </form>
+                        <!-- Referencia Field -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700">
+                                <span class="flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    Referencia
+                                </span>
+                            </label>
+                            <select name="referencia_id" required
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm">
+                                <optgroup label="Docentes">
+                                    @foreach ($docentes as $d)
+                                        <option value="{{ $d->id }}" {{ old('referencia_id', $restriccion->referencia_id) == $d->id ? 'selected' : '' }}>
+                                            {{ $d->nombre }}
+                                        </option>
+                                    @endforeach
+                                </optgroup>
+                                <optgroup label="Espacios">
+                                    @foreach ($aulas as $a)
+                                        <option value="{{ $a->id }}" {{ old('referencia_id', $restriccion->referencia_id) == $a->id ? 'selected' : '' }}>
+                                            {{ $a->nombre }}
+                                        </option>
+                                    @endforeach
+                                </optgroup>
+                                <optgroup label="Materias">
+                                    @foreach ($materias as $m)
+                                        <option value="{{ $m->id }}" {{ old('referencia_id', $restriccion->referencia_id) == $m->id ? 'selected' : '' }}>
+                                            {{ $m->nombre }}
+                                        </option>
+                                    @endforeach
+                                </optgroup>
+                                <optgroup label="Estudiantes">
+                                    @foreach ($estudiantes as $e)
+                                        <option value="{{ $e->id }}" {{ old('referencia_id', $restriccion->referencia_id) == $e->id ? 'selected' : '' }}>
+                                            {{ $e->name }}
+                                        </option>
+                                    @endforeach
+                                </optgroup>
+                            </select>
+                            @error('referencia_id')
+                                <span class="text-red-600 text-sm">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <!-- Restriction Details Section -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Clave Field -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700">
+                                <span class="flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+                                    </svg>
+                                    Clave de la Restricción
+                                </span>
+                            </label>
+                            <input type="text" name="clave" value="{{ old('clave', $restriccion->clave) }}" required
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm"
+                                   placeholder="Ej: horario_maximo, dias_no_disponibles">
+                            @error('clave')
+                                <span class="text-red-600 text-sm">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <!-- Valor Field -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700">
+                                <span class="flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                    </svg>
+                                    Valor de la Restricción
+                                </span>
+                            </label>
+                            <input type="text" name="valor" value="{{ old('valor', $restriccion->valor) }}" required
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm"
+                                   placeholder="Ej: 8, lunes-martes, 14:00-16:00">
+                            @error('valor')
+                                <span class="text-red-600 text-sm">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <!-- Current Information Display -->
+                    <div class="bg-cyan-50/50 border border-cyan-200 rounded-xl p-4">
+                        <div class="flex items-center mb-3">
+                            <svg class="w-5 h-5 text-cyan-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <h3 class="text-sm font-semibold text-cyan-800">Información Actual de la Restricción</h3>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+                            <div class="bg-white/70 px-3 py-2 rounded-lg">
+                                <span class="font-medium text-cyan-700">Tipo:</span>
+                                <div class="text-gray-900 font-semibold">{{ ucfirst($restriccion->tipo) }}</div>
+                            </div>
+                            <div class="bg-white/70 px-3 py-2 rounded-lg">
+                                <span class="font-medium text-cyan-700">Clave:</span>
+                                <div class="text-gray-900 font-semibold">{{ $restriccion->clave }}</div>
+                            </div>
+                            <div class="bg-white/70 px-3 py-2 rounded-lg">
+                                <span class="font-medium text-cyan-700">Valor:</span>
+                                <div class="text-gray-900 font-semibold">{{ $restriccion->valor }}</div>
+                            </div>
+                            <div class="bg-white/70 px-3 py-2 rounded-lg">
+                                <span class="font-medium text-cyan-700">Referencia:</span>
+                                <div class="text-gray-900 font-semibold">{{ $restriccion->referencia ? ($restriccion->referencia->nombre ?? $restriccion->referencia->email ?? 'N/A') : 'N/A' }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex flex-col sm:flex-row gap-4 pt-6">
+                        <button type="submit" 
+                                class="flex-1 bg-gradient-to-r from-cyan-600 to-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-cyan-700 hover:to-blue-700 transition-all duration-200 transform hover:scale-105 shadow-lg">
+                            <span class="flex items-center justify-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                Actualizar Restricción
+                            </span>
+                        </button>
+                        <a href="{{ route('restricciones.index') }}" 
+                           class="flex-1 bg-white text-gray-700 px-6 py-3 rounded-xl font-semibold border-2 border-gray-300 hover:border-cyan-500 hover:text-cyan-600 transition-all duration-200 transform hover:scale-105 text-center">
+                            <span class="flex items-center justify-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                                Cancelar
+                            </span>
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 @endsection

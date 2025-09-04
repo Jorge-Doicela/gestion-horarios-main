@@ -12,7 +12,7 @@ class Conflicto extends Model
     protected $fillable = [
         'horario_id',
         'tipo',
-        'descripcion'
+        'motivo'
     ];
 
     public function horario()

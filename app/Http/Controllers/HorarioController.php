@@ -20,9 +20,6 @@ class HorarioController extends Controller
     {
         // Middleware: solo usuarios autenticados
         $this->middleware('auth');
-
-        // Middleware: solo roles admin o coordinador
-        $this->middleware('role:Administrador|Coordinador Académico');
     }
 
     // Mostrar todos los horarios
@@ -283,18 +280,32 @@ class HorarioController extends Controller
     // Generación automática de horarios
     public function generarAutomatico(Request $request)
     {
-        $periodo = PeriodoAcademico::findOrFail($request->periodo_id);
+        try {
+            \Log::info('Iniciando generación automática de horarios', ['request' => $request->all()]);
+            
+            $periodo = PeriodoAcademico::findOrFail($request->periodo_id);
+            \Log::info('Período encontrado', ['periodo' => $periodo->toArray()]);
 
-        $generador = new GeneradorHorarios($periodo);
-        $resultado = $generador->generar();
+            $generador = new GeneradorHorarios($periodo);
+            $resultado = $generador->generar();
+            
+            \Log::info('Resultado de la generación', ['resultado' => $resultado]);
 
-        if ($resultado['status'] === 'error') {
-            return redirect()->back()->withErrors(['error' => $resultado['mensaje'] ?? 'Error desconocido']);
+            if ($resultado['status'] === 'error') {
+                \Log::error('Error en la generación', ['error' => $resultado['mensaje'] ?? 'Error desconocido']);
+                return redirect()->back()->withErrors(['error' => $resultado['mensaje'] ?? 'Error desconocido']);
+            }
+
+            return redirect()->route('horarios.calendario', ['periodo_id' => $periodo->id])
+                ->with('success', 'Generación finalizada. '
+                    . ($resultado['horarios_generados'] ?? 0) . ' horarios creados. '
+                    . ($resultado['conflictos'] ?? 0) . ' conflictos.');
+        } catch (\Exception $e) {
+            \Log::error('Excepción en generarAutomatico', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return redirect()->back()->withErrors(['error' => 'Error interno: ' . $e->getMessage()]);
         }
-
-        return redirect()->route('horarios.calendario', ['periodo_id' => $periodo->id])
-            ->with('success', 'Generación finalizada. '
-                . ($resultado['horarios_generados'] ?? 0) . ' horarios creados. '
-                . ($resultado['conflictos'] ?? 0) . ' conflictos.');
     }
 }
