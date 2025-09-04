@@ -1,5 +1,5 @@
 <?php
-// app/Http/Controllers/HorarioController.php
+
 namespace App\Http\Controllers;
 
 use App\Models\Horario;
@@ -10,7 +10,9 @@ use App\Models\Espacio;
 use App\Models\Dia;
 use App\Models\Hora;
 use App\Models\PeriodoAcademico;
+use App\Models\Conflicto;
 use Illuminate\Http\Request;
+use App\Services\GeneradorHorarios;
 
 class HorarioController extends Controller
 {
@@ -23,14 +25,16 @@ class HorarioController extends Controller
         $this->middleware('role:Administrador|Coordinador Académico');
     }
 
+    // Mostrar todos los horarios
     public function index()
     {
         $horarios = Horario::with(['paralelo', 'materia', 'docente', 'espacio', 'dia', 'hora', 'periodo'])
-            ->get(); // mostramos todos los horarios (no solo activos)
+            ->get();
 
         return view('horarios.index', compact('horarios'));
     }
 
+    // Formulario de creación
     public function create()
     {
         return view('horarios.create', [
@@ -44,6 +48,7 @@ class HorarioController extends Controller
         ]);
     }
 
+    // Guardar nuevo horario
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -61,7 +66,6 @@ class HorarioController extends Controller
             'observaciones' => 'nullable|string|max:500',
         ]);
 
-        // Validar conflictos solo si horario activo
         if ($validated['estado'] === 'activo') {
             $conflictos = $this->validarConflictos($validated);
             if ($conflictos) {
@@ -69,7 +73,6 @@ class HorarioController extends Controller
             }
         }
 
-        // Validación de modalidad y disponibilidad de espacio
         $verificacion = $this->verificarModalidad($request);
         if ($verificacion !== true) {
             return $verificacion;
@@ -80,6 +83,7 @@ class HorarioController extends Controller
         return redirect()->route('horarios.index')->with('success', 'Horario creado correctamente.');
     }
 
+    // Formulario de edición
     public function edit(Horario $horario)
     {
         if ($horario->estado !== 'activo') {
@@ -98,6 +102,7 @@ class HorarioController extends Controller
         ]);
     }
 
+    // Actualizar horario
     public function update(Request $request, Horario $horario)
     {
         if ($horario->estado !== 'activo') {
@@ -136,6 +141,7 @@ class HorarioController extends Controller
         return redirect()->route('horarios.index')->with('success', 'Horario actualizado correctamente.');
     }
 
+    // Eliminar horario
     public function destroy(Horario $horario)
     {
         if ($horario->estado === 'finalizado') {
@@ -146,6 +152,7 @@ class HorarioController extends Controller
         return redirect()->route('horarios.index')->with('success', 'Horario eliminado correctamente.');
     }
 
+    // Cambiar estado de un horario
     public function cambiarEstado($id, $nuevoEstado)
     {
         $horario = Horario::findOrFail($id);
@@ -160,16 +167,15 @@ class HorarioController extends Controller
         return redirect()->back()->with('success', 'Estado del horario actualizado a ' . $nuevoEstado);
     }
 
+    // Método privado: validar conflictos de horarios
     private function validarConflictos(array $data, int $idHorarioActual = null)
     {
         $conflictos = [];
 
-        // Obtener horas del horario
         $hora = Hora::find($data['hora_id']);
         $horaInicio = $hora->hora_inicio;
         $horaFin = $hora->hora_fin;
 
-        // Función para chequear solapamiento
         $solapamiento = function ($query) use ($horaInicio, $horaFin, $idHorarioActual) {
             $query->where(function ($q) use ($horaInicio, $horaFin) {
                 $q->where('hora_inicio', '<', $horaFin)
@@ -209,7 +215,7 @@ class HorarioController extends Controller
             $conflictos['paralelo_id'] = 'Este paralelo ya tiene otra materia en este horario.';
         }
 
-        // Materia (otros paralelos)
+        // Materia
         $queryMateria = $solapamiento(Horario::where('materia_id', $data['materia_id'])
             ->where('dia_id', $data['dia_id'])
             ->where('periodo_academico_id', $data['periodo_academico_id']));
@@ -220,6 +226,7 @@ class HorarioController extends Controller
         return $conflictos ?: null;
     }
 
+    // Método privado: verificar modalidad y disponibilidad de espacio
     private function verificarModalidad(Request $request)
     {
         $modalidad = $request->modalidad;
@@ -240,5 +247,54 @@ class HorarioController extends Controller
         }
 
         return true;
+    }
+
+    // Mostrar calendario
+    public function calendario(Request $request)
+    {
+        $periodos = PeriodoAcademico::all();
+
+        // Si no hay períodos, retorna vista vacía con mensaje
+        if ($periodos->isEmpty()) {
+            return view('horarios.calendario', [
+                'horarios' => collect(),
+                'conflictos' => collect(),
+                'periodos' => collect(),
+                'periodo_id' => null,
+                'error' => 'No hay períodos académicos registrados.'
+            ]);
+        }
+
+        $periodo_id = $request->query('periodo_id') ?? $periodos->first()->id;
+
+        $horarios = Horario::with(['materia', 'docente', 'espacio', 'dia', 'hora'])
+            ->where('periodo_academico_id', $periodo_id)
+            ->get();
+
+        $conflictos = Conflicto::whereHas('horario', function ($query) use ($periodo_id) {
+            $query->where('periodo_academico_id', $periodo_id);
+        })->get();
+
+        return view('horarios.calendario', compact('horarios', 'conflictos', 'periodos', 'periodo_id'));
+    }
+
+
+
+    // Generación automática de horarios
+    public function generarAutomatico(Request $request)
+    {
+        $periodo = PeriodoAcademico::findOrFail($request->periodo_id);
+
+        $generador = new GeneradorHorarios($periodo);
+        $resultado = $generador->generar();
+
+        if ($resultado['status'] === 'error') {
+            return redirect()->back()->withErrors(['error' => $resultado['mensaje'] ?? 'Error desconocido']);
+        }
+
+        return redirect()->route('horarios.calendario', ['periodo_id' => $periodo->id])
+            ->with('success', 'Generación finalizada. '
+                . ($resultado['horarios_generados'] ?? 0) . ' horarios creados. '
+                . ($resultado['conflictos'] ?? 0) . ' conflictos.');
     }
 }

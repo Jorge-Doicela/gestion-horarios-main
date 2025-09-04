@@ -4,8 +4,14 @@
     <div class="container mx-auto p-4">
         <h1 class="text-2xl font-bold mb-4">Horarios Académicos</h1>
 
-        <a href="{{ route('horarios.create') }}"
-            class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mb-4 inline-block">Crear Horario</a>
+        <div class="flex gap-2 mb-4">
+            <a href="{{ route('horarios.create') }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Crear
+                Horario</a>
+
+            <a href="{{ route('horarios.calendario') }}"
+                class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Ver Calendario & Generar Automático</a>
+        </div>
+
 
         @if (session('success'))
             <div class="bg-green-200 text-green-800 p-2 mb-4 rounded">{{ session('success') }}</div>

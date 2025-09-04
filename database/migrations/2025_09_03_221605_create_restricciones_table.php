@@ -11,19 +11,20 @@ class CreateRestriccionesTable extends Migration
         Schema::create('restricciones', function (Blueprint $table) {
             $table->id();
 
-            // Tipo de restricción: docente, paralelo o espacio
-            $table->enum('tipo', ['docente', 'paralelo', 'espacio'])->default('docente');
+            // Tipo de restricción: docente, aula, materia, estudiante
+            $table->enum('tipo', ['docente', 'aula', 'materia', 'estudiante'])->default('docente');
 
             // Referencia según tipo
-            $table->unsignedBigInteger('referencia_id'); // ID de docente, paralelo o espacio
+            $table->unsignedBigInteger('referencia_id'); // ID de docente, materia, aula o estudiante
 
-            $table->foreignId('dia_id')->nullable()->constrained('dias')->onDelete('cascade'); // Día restringido
-            $table->foreignId('hora_id')->nullable()->constrained('horas')->onDelete('cascade'); // Hora restringida
+            // Clave y valor de la restricción
+            $table->string('clave'); // ej: 'horas_por_semana', 'no_dias', 'capacidad_max'
+            $table->string('valor'); // valor correspondiente a la clave
 
-            $table->text('comentarios')->nullable(); // Notas sobre la restricción
             $table->timestamps();
 
-            $table->unique(['tipo', 'referencia_id', 'dia_id', 'hora_id'], 'unique_restriccion'); // Evitar duplicados
+            // Evitar duplicados
+            $table->unique(['tipo', 'referencia_id', 'clave'], 'unique_restriccion');
         });
     }
 

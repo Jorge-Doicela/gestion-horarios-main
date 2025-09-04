@@ -9,11 +9,14 @@ class Restriccion extends Model
 {
     use HasFactory;
 
+    // Indicar la tabla correcta
+    protected $table = 'restricciones';
+
     protected $fillable = [
-        'tipo',         // docente, aula, materia, estudiante
+        'tipo',          // docente, aula, materia, estudiante
         'referencia_id', // id de la entidad a la que aplica
-        'clave',        // clave de la restricción, ej: 'hora', 'dia', 'max_alumnos'
-        'valor',        // valor correspondiente a la clave
+        'clave',         // clave de la restricción, ej: 'hora', 'dia', 'max_alumnos'
+        'valor',         // valor correspondiente a la clave
     ];
 
     /**
