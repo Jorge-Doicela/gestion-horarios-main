@@ -35,7 +35,7 @@
 
             <!-- Form Card -->
             <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-white/20 p-8 animate-fade-in-up" style="animation-delay: 0.2s;">
-                <form action="{{ route('materias.update', $materia) }}" method="POST" class="space-y-6">
+                <form action="{{ route('materias.update', $materia) }}" method="POST" class="space-y-6" data-validate="true">
                     @csrf
                     @method('PUT')
 
@@ -51,9 +51,15 @@
                                     Nombre de la Materia
                                 </span>
                             </label>
-                            <input type="text" name="nombre" value="{{ old('nombre', $materia->nombre) }}" required
+                            <input type="text" name="nombre" value="{{ old('nombre', $materia->nombre) }}" required maxlength="100"
                                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm"
                                    placeholder="Ej: Matemáticas I, Programación, Física">
+                            <div class="flex justify-between items-center">
+                                <p class="text-sm text-gray-500">Ingrese el nombre completo de la materia</p>
+                                <div class="text-xs text-gray-500">
+                                    <span id="nombre-count">{{ strlen($materia->nombre) }}</span>/100 caracteres
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Código Field -->
@@ -66,9 +72,15 @@
                                     Código de la Materia
                                 </span>
                             </label>
-                            <input type="text" name="codigo" value="{{ old('codigo', $materia->codigo) }}" required
+                            <input type="text" name="codigo" value="{{ old('codigo', $materia->codigo) }}" required maxlength="20" pattern="[A-Z0-9]+"
                                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm"
                                    placeholder="Ej: MAT101, PROG201, FIS301">
+                            <div class="flex justify-between items-center">
+                                <p class="text-sm text-gray-500">Solo letras mayúsculas y números</p>
+                                <div class="text-xs text-gray-500">
+                                    <span id="codigo-count">{{ strlen($materia->codigo) }}</span>/20 caracteres
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -244,4 +256,64 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Contador de caracteres para nombre
+            const nombreInput = document.querySelector('input[name="nombre"]');
+            const nombreCount = document.getElementById('nombre-count');
+            
+            if (nombreInput && nombreCount) {
+                nombreInput.addEventListener('input', function() {
+                    nombreCount.textContent = this.value.length;
+                    
+                    if (this.value.length > 80) {
+                        nombreCount.classList.add('text-yellow-600');
+                    } else {
+                        nombreCount.classList.remove('text-yellow-600');
+                    }
+                    
+                    if (this.value.length >= 100) {
+                        nombreCount.classList.add('text-red-600');
+                    } else {
+                        nombreCount.classList.remove('text-red-600');
+                    }
+                });
+            }
+
+            // Contador de caracteres para código
+            const codigoInput = document.querySelector('input[name="codigo"]');
+            const codigoCount = document.getElementById('codigo-count');
+            
+            if (codigoInput && codigoCount) {
+                codigoInput.addEventListener('input', function() {
+                    // Convertir a mayúsculas automáticamente
+                    this.value = this.value.toUpperCase();
+                    codigoCount.textContent = this.value.length;
+                    
+                    if (this.value.length > 15) {
+                        codigoCount.classList.add('text-yellow-600');
+                    } else {
+                        codigoCount.classList.remove('text-yellow-600');
+                    }
+                    
+                    if (this.value.length >= 20) {
+                        codigoCount.classList.add('text-red-600');
+                    } else {
+                        codigoCount.classList.remove('text-red-600');
+                    }
+                });
+
+                // Validación de patrón
+                codigoInput.addEventListener('blur', function() {
+                    const pattern = /^[A-Z0-9]+$/;
+                    if (this.value && !pattern.test(this.value)) {
+                        this.setCustomValidity('El código solo puede contener letras mayúsculas y números');
+                    } else {
+                        this.setCustomValidity('');
+                    }
+                });
+            }
+        });
+    </script>
 @endsection

@@ -35,7 +35,7 @@
 
             <!-- Form Card -->
             <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-white/20 p-8 animate-fade-in-up" style="animation-delay: 0.2s;">
-                <form action="{{ route('niveles.store') }}" method="POST" class="space-y-6">
+                <form action="{{ route('niveles.store') }}" method="POST" class="space-y-6" data-validate="true">
                     @csrf
 
                     <!-- Nombre del Nivel Field -->
@@ -48,10 +48,15 @@
                                 Nombre del Nivel Académico
                             </span>
                         </label>
-                        <input type="text" name="nombre" value="{{ old('nombre') }}" required
+                        <input type="text" name="nombre" value="{{ old('nombre') }}" required maxlength="50"
                                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm"
                                placeholder="Ej: Primero, Segundo, Tercero, Cuarto, Quinto, Sexto">
-                        <p class="text-sm text-gray-500">Ingrese el nombre descriptivo del nivel académico</p>
+                        <div class="flex justify-between items-center">
+                            <p class="text-sm text-gray-500">Ingrese el nombre descriptivo del nivel académico</p>
+                            <div class="text-xs text-gray-500">
+                                <span id="nombre-count">0</span>/50 caracteres
+                            </div>
+                        </div>
                         @error('nombre')
                             <div class="flex items-center text-red-600 text-sm mt-1">
                                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -132,4 +137,30 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Contador de caracteres para nombre
+            const nombreInput = document.querySelector('input[name="nombre"]');
+            const nombreCount = document.getElementById('nombre-count');
+            
+            if (nombreInput && nombreCount) {
+                nombreInput.addEventListener('input', function() {
+                    nombreCount.textContent = this.value.length;
+                    
+                    if (this.value.length > 40) {
+                        nombreCount.classList.add('text-yellow-600');
+                    } else {
+                        nombreCount.classList.remove('text-yellow-600');
+                    }
+                    
+                    if (this.value.length >= 50) {
+                        nombreCount.classList.add('text-red-600');
+                    } else {
+                        nombreCount.classList.remove('text-red-600');
+                    }
+                });
+            }
+        });
+    </script>
 @endsection

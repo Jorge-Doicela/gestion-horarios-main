@@ -35,7 +35,7 @@
 
             <!-- Form Card -->
             <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-white/20 p-8 animate-fade-in-up" style="animation-delay: 0.2s;">
-                <form method="POST" action="{{ route('admin.permissions.store') }}" class="space-y-6">
+                <form method="POST" action="{{ route('admin.permissions.store') }}" class="space-y-6" data-validate="true">
                     @csrf
 
                     <!-- Permission Name Field -->
@@ -48,10 +48,18 @@
                                 Nombre del Permiso
                             </span>
                         </label>
-                        <input type="text" name="name" value="{{ old('name') }}" required
+                        <input type="text" name="name" value="{{ old('name') }}" required maxlength="255" pattern="[a-z0-9._-]+"
                                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm"
                                placeholder="Ej: users.create, roles.edit, permissions.view">
-                        <p class="text-sm text-gray-500">Use un formato descriptivo como: <code class="bg-gray-100 px-2 py-1 rounded text-xs">recurso.accion</code></p>
+                        <div class="flex justify-between items-center">
+                            <p class="text-sm text-gray-500">Use un formato descriptivo como: <code class="bg-gray-100 px-2 py-1 rounded text-xs">recurso.accion</code></p>
+                            <div class="text-xs text-gray-500">
+                                <span id="name-count">0</span>/255 caracteres
+                            </div>
+                        </div>
+                        @error('name')
+                            <span class="text-red-600 text-sm">{{ $message }}</span>
+                        @enderror
                     </div>
 
                     <!-- Permission Examples -->
@@ -108,4 +116,40 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Contador de caracteres para el nombre del permiso
+            const nameInput = document.querySelector('input[name="name"]');
+            const nameCount = document.getElementById('name-count');
+            
+            if (nameInput && nameCount) {
+                nameInput.addEventListener('input', function() {
+                    nameCount.textContent = this.value.length;
+                    
+                    if (this.value.length > 200) {
+                        nameCount.classList.add('text-yellow-600');
+                    } else {
+                        nameCount.classList.remove('text-yellow-600');
+                    }
+                    
+                    if (this.value.length >= 255) {
+                        nameCount.classList.add('text-red-600');
+                    } else {
+                        nameCount.classList.remove('text-red-600');
+                    }
+                });
+                
+                // Validación de formato
+                nameInput.addEventListener('blur', function() {
+                    const pattern = /^[a-z0-9._-]+$/;
+                    if (this.value && !pattern.test(this.value)) {
+                        this.setCustomValidity('El nombre del permiso solo puede contener letras minúsculas, números, puntos, guiones bajos y guiones');
+                    } else {
+                        this.setCustomValidity('');
+                    }
+                });
+            }
+        });
+    </script>
 @endsection

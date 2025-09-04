@@ -15,11 +15,25 @@ class PermissionController extends Controller
     }
 
     /**
-     * Listar permisos
+     * Listar permisos con paginación, filtros y búsqueda
      */
-    public function index()
+    public function index(Request $request)
     {
-        $permissions = Permission::paginate(10);
+        $query = Permission::query();
+
+        // Búsqueda
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where('name', 'like', "%{$search}%");
+        }
+
+        // Ordenamiento
+        $sortBy = $request->get('sort_by', 'name');
+        $sortDirection = $request->get('sort_direction', 'asc');
+        $query->orderBy($sortBy, $sortDirection);
+
+        $permissions = $query->paginate(15)->withQueryString();
+
         return view('admin.permissions.index', compact('permissions'));
     }
 
@@ -37,7 +51,12 @@ class PermissionController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'name' => 'required|string|unique:permissions,name',
+            'name' => 'required|string|max:255|unique:permissions,name',
+        ], [
+            'name.required' => 'El nombre del permiso es obligatorio.',
+            'name.string' => 'El nombre debe ser texto.',
+            'name.max' => 'El nombre no puede exceder los 255 caracteres.',
+            'name.unique' => 'Ya existe un permiso con este nombre.',
         ]);
 
         Permission::create(['name' => $data['name']]);
@@ -67,7 +86,12 @@ class PermissionController extends Controller
     public function update(Request $request, Permission $permission)
     {
         $data = $request->validate([
-            'name' => 'required|string|unique:permissions,name,' . $permission->id,
+            'name' => 'required|string|max:255|unique:permissions,name,' . $permission->id,
+        ], [
+            'name.required' => 'El nombre del permiso es obligatorio.',
+            'name.string' => 'El nombre debe ser texto.',
+            'name.max' => 'El nombre no puede exceder los 255 caracteres.',
+            'name.unique' => 'Ya existe un permiso con este nombre.',
         ]);
 
         $permission->update(['name' => $data['name']]);

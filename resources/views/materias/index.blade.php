@@ -26,22 +26,183 @@
                 </div>
             @endif
 
-            <!-- Action Bar -->
-            <div class="flex flex-col sm:flex-row justify-between items-center mb-6 animate-fade-in-up" style="animation-delay: 0.2s;">
-                <div class="flex items-center space-x-4 mb-4 sm:mb-0">
-                    <div class="bg-white/80 backdrop-blur-md rounded-xl px-4 py-2 border border-white/20">
-                        <span class="text-sm text-gray-600">Total de materias:</span>
-                        <span class="font-semibold text-green-600 ml-1">{{ $materias->total() }}</span>
-                    </div>
-                    <div class="bg-white/80 backdrop-blur-md rounded-xl px-4 py-2 border border-white/20">
-                        <span class="text-sm text-gray-600">Activas:</span>
-                        <span class="font-semibold text-green-600 ml-1">{{ $materias->count() }}</span>
-                    </div>
-                    <div class="bg-white/80 backdrop-blur-md rounded-xl px-4 py-2 border border-white/20">
-                        <span class="text-sm text-gray-600">Carreras:</span>
-                        <span class="font-semibold text-green-600 ml-1">{{ $materias->groupBy('carrera_id')->count() }}</span>
-                    </div>
+            <!-- Statistics Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 animate-fade-in-up" style="animation-delay: 0.2s;">
+                <div class="bg-white/80 backdrop-blur-md rounded-xl px-4 py-2 border border-white/20">
+                    <span class="text-sm text-gray-600">Total de materias:</span>
+                    <span class="font-semibold text-green-600 ml-1">{{ $materias->total() }}</span>
                 </div>
+                <div class="bg-white/80 backdrop-blur-md rounded-xl px-4 py-2 border border-white/20">
+                    <span class="text-sm text-gray-600">Activas:</span>
+                    <span class="font-semibold text-green-600 ml-1">{{ $materias->count() }}</span>
+                </div>
+                <div class="bg-white/80 backdrop-blur-md rounded-xl px-4 py-2 border border-white/20">
+                    <span class="text-sm text-gray-600">Carreras:</span>
+                    <span class="font-semibold text-green-600 ml-1">{{ $materias->groupBy('carrera_id')->count() }}</span>
+                </div>
+            </div>
+
+            <!-- Filters and Search -->
+            <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-white/20 p-6 mb-6 animate-fade-in-up" style="animation-delay: 0.3s;">
+                <form method="GET" action="{{ route('materias.index') }}" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <!-- Search -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700">
+                                <span class="flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                    </svg>
+                                    Buscar
+                                </span>
+                            </label>
+                            <input type="text" name="search" value="{{ request('search') }}" 
+                                   placeholder="Buscar por nombre, código, carrera, nivel..."
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm">
+                        </div>
+
+                        <!-- Filter by Career -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700">
+                                <span class="flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                                    </svg>
+                                    Carrera
+                                </span>
+                            </label>
+                            <select name="carrera_id" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm">
+                                <option value="">Todas las carreras</option>
+                                @foreach($carreras as $carrera)
+                                    <option value="{{ $carrera->id }}" {{ request('carrera_id') == $carrera->id ? 'selected' : '' }}>
+                                        {{ $carrera->nombre }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <!-- Filter by Level -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700">
+                                <span class="flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                                    </svg>
+                                    Nivel
+                                </span>
+                            </label>
+                            <select name="nivel_id" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm">
+                                <option value="">Todos los niveles</option>
+                                @foreach($niveles as $nivel)
+                                    <option value="{{ $nivel->id }}" {{ request('nivel_id') == $nivel->id ? 'selected' : '' }}>
+                                        {{ $nivel->nombre }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <!-- Filter by Type -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700">
+                                <span class="flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                                    </svg>
+                                    Tipo
+                                </span>
+                            </label>
+                            <select name="tipo" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm">
+                                <option value="">Todos los tipos</option>
+                                <option value="teorica" {{ request('tipo') == 'teorica' ? 'selected' : '' }}>Teórica</option>
+                                <option value="practica" {{ request('tipo') == 'practica' ? 'selected' : '' }}>Práctica</option>
+                                <option value="mixta" {{ request('tipo') == 'mixta' ? 'selected' : '' }}>Mixta</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- Sort By -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700">
+                                <span class="flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+                                    </svg>
+                                    Ordenar por
+                                </span>
+                            </label>
+                            <select name="sort_by" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm">
+                                <option value="nombre" {{ request('sort_by') == 'nombre' ? 'selected' : '' }}>Nombre</option>
+                                <option value="codigo" {{ request('sort_by') == 'codigo' ? 'selected' : '' }}>Código</option>
+                                <option value="creditos" {{ request('sort_by') == 'creditos' ? 'selected' : '' }}>Créditos</option>
+                                <option value="tipo" {{ request('sort_by') == 'tipo' ? 'selected' : '' }}>Tipo</option>
+                                <option value="created_at" {{ request('sort_by') == 'created_at' ? 'selected' : '' }}>Fecha de creación</option>
+                            </select>
+                        </div>
+
+                        <!-- Sort Direction -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700">
+                                <span class="flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
+                                    </svg>
+                                    Dirección
+                                </span>
+                            </label>
+                            <select name="sort_direction" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm">
+                                <option value="asc" {{ request('sort_direction') == 'asc' ? 'selected' : '' }}>Ascendente</option>
+                                <option value="desc" {{ request('sort_direction') == 'desc' ? 'selected' : '' }}>Descendente</option>
+                            </select>
+                        </div>
+
+                        <!-- Results Count -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700">
+                                <span class="flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                    </svg>
+                                    Resultados
+                                </span>
+                            </label>
+                            <div class="text-sm text-gray-600 px-4 py-2 bg-gray-50 rounded-xl">
+                                Mostrando {{ $materias->firstItem() ?? 0 }} - {{ $materias->lastItem() ?? 0 }} de {{ $materias->total() }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row gap-4 items-center justify-between">
+                        <div class="flex gap-2">
+                            <button type="submit" 
+                                    class="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-2 rounded-xl font-semibold hover:from-green-700 hover:to-emerald-700 transition-all duration-200 transform hover:scale-105 shadow-lg">
+                                <span class="flex items-center">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+                                    </svg>
+                                    Filtrar
+                                </span>
+                            </button>
+                            <a href="{{ route('materias.index') }}" 
+                               class="bg-gray-500 text-white px-6 py-2 rounded-xl font-semibold hover:bg-gray-600 transition-all duration-200 transform hover:scale-105 shadow-lg">
+                                <span class="flex items-center">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                    Limpiar
+                                </span>
+                            </a>
+                        </div>
+
+                        <div class="text-sm text-gray-600">
+                            <span class="font-semibold">{{ $materias->total() }}</span> materias encontradas
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Action Button -->
+            <div class="flex justify-end mb-6 animate-fade-in-up" style="animation-delay: 0.4s;">
                 <a href="{{ route('materias.create') }}" 
                    class="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-green-700 hover:to-emerald-700 transition-all duration-200 transform hover:scale-105 shadow-lg">
                     <span class="flex items-center">
@@ -186,11 +347,12 @@
                                                 </svg>
                                                 Editar
                                             </a>
-                                            <form action="{{ route('materias.destroy', $materia) }}" method="POST" class="inline"
-                                                  onsubmit="return confirm('¿Está seguro de eliminar esta materia?');">
+                                            <form action="{{ route('materias.destroy', $materia) }}" method="POST" class="inline">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" 
+                                                        data-confirm-delete="true"
+                                                        data-confirm-message="¿Está seguro de eliminar la materia '{{ $materia->nombre }}'? Esta acción no se puede deshacer."
                                                         class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-lg text-white bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200 transform hover:scale-105">
                                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>

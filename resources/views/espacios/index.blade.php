@@ -26,22 +26,130 @@
                 </div>
         @endif
 
-            <!-- Action Bar -->
-            <div class="flex flex-col sm:flex-row justify-between items-center mb-6 animate-fade-in-up" style="animation-delay: 0.2s;">
-                <div class="flex items-center space-x-4 mb-4 sm:mb-0">
-                    <div class="bg-white/80 backdrop-blur-md rounded-xl px-4 py-2 border border-white/20">
-                        <span class="text-sm text-gray-600">Total de espacios:</span>
-                        <span class="font-semibold text-indigo-600 ml-1">{{ $espacios->total() }}</span>
-                    </div>
-                    <div class="bg-white/80 backdrop-blur-md rounded-xl px-4 py-2 border border-white/20">
-                        <span class="text-sm text-gray-600">Disponibles:</span>
-                        <span class="font-semibold text-indigo-600 ml-1">{{ $espacios->where('disponible', true)->count() }}</span>
-                    </div>
-                    <div class="bg-white/80 backdrop-blur-md rounded-xl px-4 py-2 border border-white/20">
-                        <span class="text-sm text-gray-600">Capacidad total:</span>
-                        <span class="font-semibold text-indigo-600 ml-1">{{ $espacios->sum('capacidad') }}</span>
-                    </div>
+            <!-- Statistics Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 animate-fade-in-up" style="animation-delay: 0.2s;">
+                <div class="bg-white/80 backdrop-blur-md rounded-xl px-4 py-2 border border-white/20">
+                    <span class="text-sm text-gray-600">Total de espacios:</span>
+                    <span class="font-semibold text-indigo-600 ml-1">{{ $espacios->total() }}</span>
                 </div>
+                <div class="bg-white/80 backdrop-blur-md rounded-xl px-4 py-2 border border-white/20">
+                    <span class="text-sm text-gray-600">Disponibles:</span>
+                    <span class="font-semibold text-indigo-600 ml-1">{{ $espacios->where('disponible', true)->count() }}</span>
+                </div>
+                <div class="bg-white/80 backdrop-blur-md rounded-xl px-4 py-2 border border-white/20">
+                    <span class="text-sm text-gray-600">Capacidad total:</span>
+                    <span class="font-semibold text-indigo-600 ml-1">{{ $espacios->sum('capacidad') }}</span>
+                </div>
+            </div>
+
+            <!-- Filters and Search -->
+            <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-white/20 p-6 mb-6 animate-fade-in-up" style="animation-delay: 0.3s;">
+                <form method="GET" action="{{ route('espacios.index') }}" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <!-- Search -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700">
+                                <span class="flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                    </svg>
+                                    Buscar
+                                </span>
+                            </label>
+                            <input type="text" name="search" value="{{ request('search') }}" 
+                                   placeholder="Buscar por nombre, ubicación, tipo..."
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm">
+                        </div>
+
+                        <!-- Tipo Filter -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700">
+                                <span class="flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                                    </svg>
+                                    Tipo
+                                </span>
+                            </label>
+                            <select name="tipo" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm">
+                                <option value="">Todos los tipos</option>
+                                @foreach($tipos as $tipo)
+                                    <option value="{{ $tipo }}" {{ request('tipo') == $tipo ? 'selected' : '' }}>
+                                        {{ ucfirst($tipo) }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <!-- Modalidad Filter -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700">
+                                <span class="flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                    </svg>
+                                    Modalidad
+                                </span>
+                            </label>
+                            <select name="modalidad" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm">
+                                <option value="">Todas las modalidades</option>
+                                @foreach($modalidades as $modalidad)
+                                    <option value="{{ $modalidad }}" {{ request('modalidad') == $modalidad ? 'selected' : '' }}>
+                                        {{ ucfirst($modalidad) }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <!-- Disponibilidad Filter -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700">
+                                <span class="flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    Disponibilidad
+                                </span>
+                            </label>
+                            <select name="disponible" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm">
+                                <option value="">Todos</option>
+                                <option value="1" {{ request('disponible') === '1' ? 'selected' : '' }}>Disponibles</option>
+                                <option value="0" {{ request('disponible') === '0' ? 'selected' : '' }}>No disponibles</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row gap-4 items-center justify-between">
+                        <div class="flex gap-2">
+                            <button type="submit" 
+                                    class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-2 rounded-xl font-semibold hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 shadow-lg">
+                                <span class="flex items-center">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+                                    </svg>
+                                    Filtrar
+                                </span>
+                            </button>
+                            <a href="{{ route('espacios.index') }}" 
+                               class="bg-gray-500 text-white px-6 py-2 rounded-xl font-semibold hover:bg-gray-600 transition-all duration-200 transform hover:scale-105 shadow-lg">
+                                <span class="flex items-center">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                    Limpiar
+                                </span>
+                            </a>
+                        </div>
+
+                        <div class="text-sm text-gray-600">
+                            Mostrando {{ $espacios->firstItem() ?? 0 }} - {{ $espacios->lastItem() ?? 0 }} de {{ $espacios->total() }} resultados
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Action Button -->
+            <div class="flex justify-end mb-6 animate-fade-in-up" style="animation-delay: 0.4s;">
                 <a href="{{ route('espacios.create') }}" 
                    class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 shadow-lg">
                     <span class="flex items-center">

@@ -28,13 +28,80 @@ class HorarioController extends Controller
         $this->middleware('auth');
     }
 
-    // Mostrar todos los horarios
-    public function index()
+    // Mostrar todos los horarios con paginación, filtros y búsqueda
+    public function index(Request $request)
     {
-        $horarios = Horario::with(['paralelo', 'materia', 'docente', 'espacio', 'dia', 'hora', 'periodo'])
-            ->get();
+        $query = Horario::with(['paralelo', 'materia', 'docente', 'espacio', 'dia', 'hora', 'periodo']);
 
-        return view('horarios.index', compact('horarios'));
+        // Filtros
+        if ($request->filled('estado')) {
+            $query->where('estado', $request->estado);
+        }
+
+        if ($request->filled('modalidad')) {
+            $query->where('modalidad', $request->modalidad);
+        }
+
+        if ($request->filled('periodo_id')) {
+            $query->where('periodo_academico_id', $request->periodo_id);
+        }
+
+        if ($request->filled('docente_id')) {
+            $query->where('docente_id', $request->docente_id);
+        }
+
+        if ($request->filled('paralelo_id')) {
+            $query->where('paralelo_id', $request->paralelo_id);
+        }
+
+        // Búsqueda
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('materia', function ($subQuery) use ($search) {
+                    $subQuery->where('nombre', 'like', "%{$search}%");
+                })
+                ->orWhereHas('docente', function ($subQuery) use ($search) {
+                    $subQuery->where('nombre', 'like', "%{$search}%");
+                })
+                ->orWhereHas('paralelo', function ($subQuery) use ($search) {
+                    $subQuery->where('nombre', 'like', "%{$search}%");
+                })
+                ->orWhereHas('espacio', function ($subQuery) use ($search) {
+                    $subQuery->where('nombre', 'like', "%{$search}%");
+                });
+            });
+        }
+
+        // Ordenamiento
+        $sortBy = $request->get('sort_by', 'created_at');
+        $sortDirection = $request->get('sort_direction', 'desc');
+        
+        if (in_array($sortBy, ['materia', 'docente', 'paralelo', 'espacio'])) {
+            $query->join($sortBy . 's', 'horarios.' . $sortBy . '_id', '=', $sortBy . 's.id')
+                  ->orderBy($sortBy . 's.nombre', $sortDirection)
+                  ->select('horarios.*');
+        } else {
+            $query->orderBy($sortBy, $sortDirection);
+        }
+
+        $horarios = $query->paginate(15)->withQueryString();
+
+        // Datos para filtros
+        $estados = ['activo', 'suspendido', 'finalizado'];
+        $modalidades = ['presencial', 'virtual', 'hibrida'];
+        $periodos = PeriodoAcademico::orderBy('nombre')->get();
+        $docentes = Docente::orderBy('nombre')->get();
+        $paralelos = Paralelo::orderBy('nombre')->get();
+
+        return view('horarios.index', compact(
+            'horarios', 
+            'estados', 
+            'modalidades', 
+            'periodos', 
+            'docentes', 
+            'paralelos'
+        ));
     }
 
     // Formulario de creación
@@ -67,6 +134,31 @@ class HorarioController extends Controller
             'estado' => 'required|in:activo,suspendido,finalizado',
             'modalidad' => 'required|in:presencial,virtual,hibrida',
             'observaciones' => 'nullable|string|max:500',
+        ], [
+            'paralelo_id.required' => 'El paralelo es obligatorio.',
+            'paralelo_id.exists' => 'El paralelo seleccionado no existe.',
+            'materia_id.required' => 'La materia es obligatoria.',
+            'materia_id.exists' => 'La materia seleccionada no existe.',
+            'docente_id.required' => 'El docente es obligatorio.',
+            'docente_id.exists' => 'El docente seleccionado no existe.',
+            'espacio_id.exists' => 'El espacio seleccionado no existe.',
+            'dia_id.required' => 'El día es obligatorio.',
+            'dia_id.exists' => 'El día seleccionado no existe.',
+            'hora_id.required' => 'La hora es obligatoria.',
+            'hora_id.exists' => 'La hora seleccionada no existe.',
+            'periodo_academico_id.required' => 'El período académico es obligatorio.',
+            'periodo_academico_id.exists' => 'El período académico seleccionado no existe.',
+            'fecha_inicio.required' => 'La fecha de inicio es obligatoria.',
+            'fecha_inicio.date' => 'La fecha de inicio debe ser una fecha válida.',
+            'fecha_fin.required' => 'La fecha de fin es obligatoria.',
+            'fecha_fin.date' => 'La fecha de fin debe ser una fecha válida.',
+            'fecha_fin.after_or_equal' => 'La fecha de fin debe ser igual o posterior a la fecha de inicio.',
+            'estado.required' => 'El estado es obligatorio.',
+            'estado.in' => 'El estado debe ser: activo, suspendido o finalizado.',
+            'modalidad.required' => 'La modalidad es obligatoria.',
+            'modalidad.in' => 'La modalidad debe ser: presencial, virtual o híbrida.',
+            'observaciones.string' => 'Las observaciones deben ser texto.',
+            'observaciones.max' => 'Las observaciones no pueden exceder los 500 caracteres.',
         ]);
 
         if ($validated['estado'] === 'activo') {

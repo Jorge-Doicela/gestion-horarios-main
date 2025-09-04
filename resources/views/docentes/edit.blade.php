@@ -33,8 +33,48 @@
                 </div>
             @endif
 
+            <!-- Current Information Display -->
+            <div class="bg-blue-50/50 border border-blue-200 rounded-xl p-6 mb-6 animate-fade-in-up" style="animation-delay: 0.2s;">
+                <div class="flex items-center mb-4">
+                    <svg class="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <h3 class="text-lg font-semibold text-blue-800">Información Actual del Docente</h3>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+                    <div class="bg-white/70 px-4 py-3 rounded-lg">
+                        <span class="font-medium text-blue-700">Nombre:</span>
+                        <div class="text-gray-900 font-semibold">{{ $docente->nombre }}</div>
+                    </div>
+                    <div class="bg-white/70 px-4 py-3 rounded-lg">
+                        <span class="font-medium text-blue-700">Email:</span>
+                        <div class="text-gray-900 font-semibold">{{ $docente->email ?: 'No especificado' }}</div>
+                    </div>
+                    <div class="bg-white/70 px-4 py-3 rounded-lg">
+                        <span class="font-medium text-blue-700">Título:</span>
+                        <div class="text-gray-900 font-semibold">{{ $docente->titulo ?: 'No especificado' }}</div>
+                    </div>
+                    <div class="bg-white/70 px-4 py-3 rounded-lg">
+                        <span class="font-medium text-blue-700">Especialidad:</span>
+                        <div class="text-gray-900 font-semibold">{{ $docente->especialidad ?: 'No especificada' }}</div>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <span class="font-medium text-blue-700">Materias asignadas:</span>
+                    <div class="mt-2 flex flex-wrap gap-2">
+                        @forelse($docente->materias as $materia)
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                                {{ $materia->codigo }} - {{ $materia->nombre }}
+                            </span>
+                        @empty
+                            <span class="text-gray-500 text-sm">No hay materias asignadas</span>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
+
             <!-- Form Card -->
-            <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-white/20 p-8 animate-fade-in-up" style="animation-delay: 0.2s;">
+            <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-white/20 p-8 animate-fade-in-up" style="animation-delay: 0.3s;">
                 <form action="{{ route('docentes.update', $docente) }}" method="POST" class="space-y-6">
                     @method('PUT')
                     @include('docentes.form')

@@ -51,9 +51,15 @@
                                     Nombre del Período Académico
                                 </span>
                             </label>
-                            <input type="text" name="nombre" value="{{ old('nombre', $periodo->nombre) }}" required
+                            <input type="text" name="nombre" value="{{ old('nombre', $periodo->nombre) }}" required maxlength="100"
                                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm"
                                    placeholder="Ej: 2024-1, Semestre I 2024, Trimestre A">
+                            <div class="flex justify-between items-center">
+                                <p class="text-sm text-gray-500">Ingrese el nombre del período académico</p>
+                                <div class="text-xs text-gray-500">
+                                    <span id="nombre-count">{{ strlen(old('nombre', $periodo->nombre)) }}</span>/100 caracteres
+                                </div>
+                            </div>
                             @error('nombre')
                                 <span class="text-red-600 text-sm">{{ $message }}</span>
                             @enderror
@@ -167,4 +173,56 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Contador de caracteres para nombre
+            const nombreInput = document.querySelector('input[name="nombre"]');
+            const nombreCount = document.getElementById('nombre-count');
+            
+            if (nombreInput && nombreCount) {
+                nombreInput.addEventListener('input', function() {
+                    nombreCount.textContent = this.value.length;
+                    
+                    if (this.value.length > 80) {
+                        nombreCount.classList.add('text-yellow-600');
+                    } else {
+                        nombreCount.classList.remove('text-yellow-600');
+                    }
+                    
+                    if (this.value.length >= 100) {
+                        nombreCount.classList.add('text-red-600');
+                    } else {
+                        nombreCount.classList.remove('text-red-600');
+                    }
+                });
+            }
+
+            // Validación de fechas
+            const fechaInicioInput = document.querySelector('input[name="fecha_inicio"]');
+            const fechaFinInput = document.querySelector('input[name="fecha_fin"]');
+            
+            if (fechaInicioInput && fechaFinInput) {
+                fechaInicioInput.addEventListener('change', function() {
+                    if (this.value && fechaFinInput.value) {
+                        if (new Date(this.value) > new Date(fechaFinInput.value)) {
+                            fechaFinInput.setCustomValidity('La fecha de fin debe ser posterior a la fecha de inicio');
+                        } else {
+                            fechaFinInput.setCustomValidity('');
+                        }
+                    }
+                });
+                
+                fechaFinInput.addEventListener('change', function() {
+                    if (this.value && fechaInicioInput.value) {
+                        if (new Date(this.value) < new Date(fechaInicioInput.value)) {
+                            this.setCustomValidity('La fecha de fin debe ser posterior a la fecha de inicio');
+                        } else {
+                            this.setCustomValidity('');
+                        }
+                    }
+                });
+            }
+        });
+    </script>
 @endsection

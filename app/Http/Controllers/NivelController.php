@@ -7,9 +7,23 @@ use Illuminate\Http\Request;
 
 class NivelController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $niveles = Nivel::paginate(10);
+        $query = Nivel::query();
+
+        // Búsqueda
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where('nombre', 'like', "%{$search}%");
+        }
+
+        // Ordenamiento
+        $sortBy = $request->get('sort_by', 'nombre');
+        $sortDirection = $request->get('sort_direction', 'asc');
+        $query->orderBy($sortBy, $sortDirection);
+
+        $niveles = $query->paginate(15)->withQueryString();
+
         return view('niveles.index', compact('niveles'));
     }
 
@@ -22,6 +36,11 @@ class NivelController extends Controller
     {
         $request->validate([
             'nombre' => 'required|string|max:50|unique:niveles,nombre',
+        ], [
+            'nombre.required' => 'El nombre del nivel es obligatorio.',
+            'nombre.string' => 'El nombre debe ser texto.',
+            'nombre.max' => 'El nombre no puede exceder los 50 caracteres.',
+            'nombre.unique' => 'Ya existe un nivel con este nombre.',
         ]);
 
         Nivel::create($request->all());
@@ -39,6 +58,11 @@ class NivelController extends Controller
     {
         $request->validate([
             'nombre' => 'required|string|max:50|unique:niveles,nombre,' . $nivel->id,
+        ], [
+            'nombre.required' => 'El nombre del nivel es obligatorio.',
+            'nombre.string' => 'El nombre debe ser texto.',
+            'nombre.max' => 'El nombre no puede exceder los 50 caracteres.',
+            'nombre.unique' => 'Ya existe un nivel con este nombre.',
         ]);
 
         $nivel->update($request->all());

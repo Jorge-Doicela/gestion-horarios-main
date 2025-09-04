@@ -6,85 +6,133 @@
     <title>Horario Semanal</title>
     <style>
         body {
-            font-family: Arial, Helvetica, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             font-size: 12px;
             margin: 0;
-            padding: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
         }
 
         header {
             display: flex;
             align-items: center;
-            margin-bottom: 15px;
-            padding: 10px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
         header img {
             width: 80px;
             height: auto;
-            margin-right: 15px;
+            margin-right: 20px;
+            filter: brightness(0) invert(1);
         }
 
         header h2 {
             margin: 0;
-            font-size: 18px;
+            font-size: 24px;
+            color: white;
+            font-weight: bold;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
             page-break-inside: auto;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
 
-        th,
+        th {
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            color: #374151;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 11px;
+            padding: 12px 8px;
+            border: 1px solid #d1d5db;
+        }
+
         td {
-            border: 1px solid #333;
-            padding: 5px;
+            border: 1px solid #e5e7eb;
+            padding: 8px;
             text-align: center;
             vertical-align: middle;
             font-size: 11px;
         }
 
-        th {
-            background-color: #f0f0f0;
-        }
-
-        tr:nth-child(even) td {
-            background-color: #f9f9f9;
+        .time-cell {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            font-weight: bold;
+            font-size: 10px;
         }
 
         .presencial {
-            background-color: #c8e6c9;
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            border: 2px solid #22c55e;
+            border-radius: 8px;
+            padding: 8px;
         }
 
         .virtual {
-            background-color: #bbdefb;
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border: 2px solid #3b82f6;
+            border-radius: 8px;
+            padding: 8px;
         }
 
         .hibrida {
-            background-color: #fff9c4;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #f59e0b;
+            border-radius: 8px;
+            padding: 8px;
         }
 
         .suspendido {
-            background-color: #ffe0b2;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #f59e0b;
+            border-radius: 8px;
+            padding: 8px;
+            opacity: 0.8;
         }
 
         .finalizado {
-            background-color: #e0e0e0;
-            color: #555;
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            border: 2px solid #9ca3af;
+            border-radius: 8px;
+            padding: 8px;
+            color: #6b7280;
+            opacity: 0.7;
         }
 
         .celda {
-            padding: 5px;
+            padding: 8px;
         }
 
         .materia {
             font-weight: bold;
             font-size: 12px;
+            margin-bottom: 4px;
+            color: #1f2937;
         }
 
         .detalle {
-            font-size: 10px;
+            font-size: 9px;
+            color: #6b7280;
+            line-height: 1.3;
+        }
+
+        .conflict {
+            color: #dc2626;
+            font-weight: bold;
+            font-size: 9px;
+            margin-top: 4px;
         }
     </style>
 </head>
@@ -107,8 +155,10 @@
         <tbody>
             @foreach ($horas as $hora)
                 <tr>
-                    <td class="celda">{{ \Carbon\Carbon::parse($hora->hora_inicio)->format('H:i') }} -
-                        {{ \Carbon\Carbon::parse($hora->hora_fin)->format('H:i') }}</td>
+                    <td class="celda time-cell">
+                        {{ \Carbon\Carbon::parse($hora->hora_inicio)->format('H:i') }} -<br>
+                        {{ \Carbon\Carbon::parse($hora->hora_fin)->format('H:i') }}
+                    </td>
                     @foreach ($dias as $dia)
                         @php
                             $clase = $horarios->first(fn($h) => $h->hora_id == $hora->id && $h->dia_id == $dia->id);
@@ -123,21 +173,22 @@
                                 }
                             }
                         @endphp
-                        <td class="celda {{ $colorClass }}">
+                        <td class="celda">
                             @if ($clase)
-                                <div class="materia">{{ $clase->materia->nombre }}</div>
-                                <div class="detalle">
-                                    Paralelo: {{ $clase->paralelo->nombre }}<br>
-                                    Docente: {{ $clase->docente->nombre }}<br>
-                                    Espacio: {{ $clase->espacio?->nombre ?? 'Sin asignar' }}<br>
-                                    Modalidad: {{ ucfirst($clase->modalidad) }}
-                                    @if ($clase->conflictos->count())
-                                        <br><span style="color:red;">⚠
-                                            {{ $clase->conflictos->pluck('motivo')->join(', ') }}</span>
-                                    @endif
+                                <div class="{{ $colorClass }}">
+                                    <div class="materia">{{ $clase->materia->nombre }}</div>
+                                    <div class="detalle">
+                                        <strong>Paralelo:</strong> {{ $clase->paralelo->nombre }}<br>
+                                        <strong>Docente:</strong> {{ $clase->docente->nombre }}<br>
+                                        <strong>Espacio:</strong> {{ $clase->espacio?->nombre ?? 'Sin asignar' }}<br>
+                                        <strong>Modalidad:</strong> {{ ucfirst($clase->modalidad) }}
+                                        @if ($clase->conflictos->count())
+                                            <div class="conflict">⚠ {{ $clase->conflictos->pluck('motivo')->join(', ') }}</div>
+                                        @endif
+                                    </div>
                                 </div>
                             @else
-                                -
+                                <div style="color: #9ca3af; font-style: italic;">-</div>
                             @endif
                         </td>
                     @endforeach

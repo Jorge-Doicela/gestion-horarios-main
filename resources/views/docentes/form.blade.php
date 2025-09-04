@@ -12,9 +12,15 @@
                 Nombre Completo
             </span>
         </label>
-        <input type="text" name="nombre" value="{{ old('nombre', $docente->nombre ?? '') }}" required
+        <input type="text" name="nombre" value="{{ old('nombre', $docente->nombre ?? '') }}" required maxlength="100"
                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm"
                placeholder="Ej: Dr. Juan Pérez García">
+        <div class="flex justify-between items-center">
+            <p class="text-sm text-gray-500">Ingrese el nombre completo del docente</p>
+            <div class="text-xs text-gray-500">
+                <span id="nombre-count">{{ strlen(old('nombre', $docente->nombre ?? '')) }}</span>/100 caracteres
+            </div>
+        </div>
     </div>
 
     <!-- Email Field -->
@@ -27,9 +33,15 @@
                 Correo Electrónico
             </span>
         </label>
-        <input type="email" name="email" value="{{ old('email', $docente->email ?? '') }}" required
+        <input type="email" name="email" value="{{ old('email', $docente->email ?? '') }}"
                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm"
                placeholder="Ej: juan.perez@universidad.edu">
+        <div class="flex justify-between items-center">
+            <p class="text-sm text-gray-500">Email de contacto (opcional)</p>
+            <div class="text-xs text-gray-500">
+                <span id="email-count">{{ strlen(old('email', $docente->email ?? '')) }}</span> caracteres
+            </div>
+        </div>
     </div>
 </div>
 
@@ -46,9 +58,15 @@
                 Título Académico
             </span>
         </label>
-        <input type="text" name="titulo" value="{{ old('titulo', $docente->titulo ?? '') }}" required
+        <input type="text" name="titulo" value="{{ old('titulo', $docente->titulo ?? '') }}"
                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm"
                placeholder="Ej: Doctor en Ciencias, Magíster en Educación">
+        <div class="flex justify-between items-center">
+            <p class="text-sm text-gray-500">Título académico (opcional)</p>
+            <div class="text-xs text-gray-500">
+                <span id="titulo-count">{{ strlen(old('titulo', $docente->titulo ?? '')) }}</span>/100 caracteres
+            </div>
+        </div>
     </div>
 
     <!-- Especialidad Field -->
@@ -61,9 +79,15 @@
                 Especialidad
             </span>
         </label>
-        <input type="text" name="especialidad" value="{{ old('especialidad', $docente->especialidad ?? '') }}" required
+        <input type="text" name="especialidad" value="{{ old('especialidad', $docente->especialidad ?? '') }}"
                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm"
                placeholder="Ej: Matemáticas Aplicadas, Física Cuántica">
+        <div class="flex justify-between items-center">
+            <p class="text-sm text-gray-500">Especialidad académica (opcional)</p>
+            <div class="text-xs text-gray-500">
+                <span id="especialidad-count">{{ strlen(old('especialidad', $docente->especialidad ?? '')) }}</span>/100 caracteres
+            </div>
+        </div>
     </div>
 </div>
 
@@ -143,3 +167,83 @@
         </span>
     </a>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Contador de caracteres para nombre
+        const nombreInput = document.querySelector('input[name="nombre"]');
+        const nombreCount = document.getElementById('nombre-count');
+        
+        if (nombreInput && nombreCount) {
+            nombreInput.addEventListener('input', function() {
+                nombreCount.textContent = this.value.length;
+                
+                if (this.value.length > 80) {
+                    nombreCount.classList.add('text-yellow-600');
+                } else {
+                    nombreCount.classList.remove('text-yellow-600');
+                }
+                
+                if (this.value.length >= 100) {
+                    nombreCount.classList.add('text-red-600');
+                } else {
+                    nombreCount.classList.remove('text-red-600');
+                }
+            });
+        }
+
+        // Contador de caracteres para email
+        const emailInput = document.querySelector('input[name="email"]');
+        const emailCount = document.getElementById('email-count');
+        
+        if (emailInput && emailCount) {
+            emailInput.addEventListener('input', function() {
+                emailCount.textContent = this.value.length;
+            });
+        }
+
+        // Contador de caracteres para título
+        const tituloInput = document.querySelector('input[name="titulo"]');
+        const tituloCount = document.getElementById('titulo-count');
+        
+        if (tituloInput && tituloCount) {
+            tituloInput.addEventListener('input', function() {
+                tituloCount.textContent = this.value.length;
+                
+                if (this.value.length > 80) {
+                    tituloCount.classList.add('text-yellow-600');
+                } else {
+                    tituloCount.classList.remove('text-yellow-600');
+                }
+                
+                if (this.value.length >= 100) {
+                    tituloCount.classList.add('text-red-600');
+                } else {
+                    tituloCount.classList.remove('text-red-600');
+                }
+            });
+        }
+
+        // Contador de caracteres para especialidad
+        const especialidadInput = document.querySelector('input[name="especialidad"]');
+        const especialidadCount = document.getElementById('especialidad-count');
+        
+        if (especialidadInput && especialidadCount) {
+            especialidadInput.addEventListener('input', function() {
+                especialidadCount.textContent = this.value.length;
+                
+                if (this.value.length > 80) {
+                    especialidadCount.classList.add('text-yellow-600');
+                } else {
+                    especialidadCount.classList.remove('text-yellow-600');
+                }
+                
+                if (this.value.length >= 100) {
+                    especialidadCount.classList.add('text-red-600');
+                } else {
+                    especialidadCount.classList.remove('text-red-600');
+                }
+            });
+        }
+    });
+</script>

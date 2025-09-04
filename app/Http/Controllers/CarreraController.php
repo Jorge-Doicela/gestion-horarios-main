@@ -7,10 +7,28 @@ use Illuminate\Http\Request;
 
 class CarreraController extends Controller
 {
-    // Mostrar todas las carreras
-    public function index()
+    // Mostrar todas las carreras con paginación, filtros y búsqueda
+    public function index(Request $request)
     {
-        $carreras = Carrera::paginate(10);
+        $query = Carrera::query();
+
+        // Búsqueda
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('nombre', 'like', "%{$search}%")
+                  ->orWhere('codigo', 'like', "%{$search}%")
+                  ->orWhere('descripcion', 'like', "%{$search}%");
+            });
+        }
+
+        // Ordenamiento
+        $sortBy = $request->get('sort_by', 'nombre');
+        $sortDirection = $request->get('sort_direction', 'asc');
+        $query->orderBy($sortBy, $sortDirection);
+
+        $carreras = $query->paginate(15)->withQueryString();
+
         return view('carreras.index', compact('carreras'));
     }
 
@@ -26,7 +44,17 @@ class CarreraController extends Controller
         $request->validate([
             'nombre' => 'required|string|max:100',
             'codigo' => 'required|string|max:20|unique:carreras,codigo',
-            'descripcion' => 'nullable|string',
+            'descripcion' => 'nullable|string|max:500',
+        ], [
+            'nombre.required' => 'El nombre de la carrera es obligatorio.',
+            'nombre.string' => 'El nombre debe ser texto.',
+            'nombre.max' => 'El nombre no puede exceder los 100 caracteres.',
+            'codigo.required' => 'El código de la carrera es obligatorio.',
+            'codigo.string' => 'El código debe ser texto.',
+            'codigo.max' => 'El código no puede exceder los 20 caracteres.',
+            'codigo.unique' => 'Ya existe una carrera con este código.',
+            'descripcion.string' => 'La descripción debe ser texto.',
+            'descripcion.max' => 'La descripción no puede exceder los 500 caracteres.',
         ]);
 
         Carrera::create($request->all());
@@ -47,7 +75,17 @@ class CarreraController extends Controller
         $request->validate([
             'nombre' => 'required|string|max:100',
             'codigo' => 'required|string|max:20|unique:carreras,codigo,' . $carrera->id,
-            'descripcion' => 'nullable|string',
+            'descripcion' => 'nullable|string|max:500',
+        ], [
+            'nombre.required' => 'El nombre de la carrera es obligatorio.',
+            'nombre.string' => 'El nombre debe ser texto.',
+            'nombre.max' => 'El nombre no puede exceder los 100 caracteres.',
+            'codigo.required' => 'El código de la carrera es obligatorio.',
+            'codigo.string' => 'El código debe ser texto.',
+            'codigo.max' => 'El código no puede exceder los 20 caracteres.',
+            'codigo.unique' => 'Ya existe una carrera con este código.',
+            'descripcion.string' => 'La descripción debe ser texto.',
+            'descripcion.max' => 'La descripción no puede exceder los 500 caracteres.',
         ]);
 
         $carrera->update($request->all());

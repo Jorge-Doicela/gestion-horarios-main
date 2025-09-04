@@ -26,22 +26,163 @@
                 </div>
             @endif
 
-            <!-- Action Bar -->
-            <div class="flex flex-col sm:flex-row justify-between items-center mb-6 animate-fade-in-up" style="animation-delay: 0.2s;">
-                <div class="flex items-center space-x-4 mb-4 sm:mb-0">
-                    <div class="bg-white/80 backdrop-blur-md rounded-xl px-4 py-2 border border-white/20">
-                        <span class="text-sm text-gray-600">Total de períodos:</span>
-                        <span class="font-semibold text-orange-600 ml-1">{{ $periodos->count() }}</span>
-                    </div>
-                    <div class="bg-white/80 backdrop-blur-md rounded-xl px-4 py-2 border border-white/20">
-                        <span class="text-sm text-gray-600">Activos:</span>
-                        <span class="font-semibold text-orange-600 ml-1">{{ $periodos->where('estado', 'activo')->count() }}</span>
-                    </div>
-                    <div class="bg-white/80 backdrop-blur-md rounded-xl px-4 py-2 border border-white/20">
-                        <span class="text-sm text-gray-600">Finalizados:</span>
-                        <span class="font-semibold text-orange-600 ml-1">{{ $periodos->where('estado', 'finalizado')->count() }}</span>
-                    </div>
+            <!-- Statistics Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 animate-fade-in-up" style="animation-delay: 0.2s;">
+                <div class="bg-white/80 backdrop-blur-md rounded-xl px-4 py-2 border border-white/20">
+                    <span class="text-sm text-gray-600">Total de períodos:</span>
+                    <span class="font-semibold text-orange-600 ml-1">{{ $periodos->total() }}</span>
                 </div>
+                <div class="bg-white/80 backdrop-blur-md rounded-xl px-4 py-2 border border-white/20">
+                    <span class="text-sm text-gray-600">Activos:</span>
+                    <span class="font-semibold text-orange-600 ml-1">{{ $periodos->where('estado', 'activo')->count() }}</span>
+                </div>
+                <div class="bg-white/80 backdrop-blur-md rounded-xl px-4 py-2 border border-white/20">
+                    <span class="text-sm text-gray-600">Finalizados:</span>
+                    <span class="font-semibold text-orange-600 ml-1">{{ $periodos->where('estado', 'finalizado')->count() }}</span>
+                </div>
+            </div>
+
+            <!-- Filters and Search -->
+            <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-white/20 p-6 mb-6 animate-fade-in-up" style="animation-delay: 0.3s;">
+                <form method="GET" action="{{ route('periodos.index') }}" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- Search -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700">
+                                <span class="flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                    </svg>
+                                    Buscar
+                                </span>
+                            </label>
+                            <input type="text" name="search" value="{{ request('search') }}" 
+                                   placeholder="Buscar por nombre o estado..."
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm">
+                        </div>
+
+                        <!-- Filter by Status -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700">
+                                <span class="flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    Estado
+                                </span>
+                            </label>
+                            <select name="estado" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm">
+                                <option value="">Todos los estados</option>
+                                <option value="activo" {{ request('estado') == 'activo' ? 'selected' : '' }}>Activo</option>
+                                <option value="inactivo" {{ request('estado') == 'inactivo' ? 'selected' : '' }}>Inactivo</option>
+                                <option value="finalizado" {{ request('estado') == 'finalizado' ? 'selected' : '' }}>Finalizado</option>
+                            </select>
+                        </div>
+
+                        <!-- Filter by Date Range -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700">
+                                <span class="flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                    Rango de Fechas
+                                </span>
+                            </label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <input type="date" name="fecha_desde" value="{{ request('fecha_desde') }}" 
+                                       placeholder="Desde"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm text-sm">
+                                <input type="date" name="fecha_hasta" value="{{ request('fecha_hasta') }}" 
+                                       placeholder="Hasta"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm text-sm">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- Sort By -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700">
+                                <span class="flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+                                    </svg>
+                                    Ordenar por
+                                </span>
+                            </label>
+                            <select name="sort_by" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm">
+                                <option value="nombre" {{ request('sort_by') == 'nombre' ? 'selected' : '' }}>Nombre</option>
+                                <option value="fecha_inicio" {{ request('sort_by') == 'fecha_inicio' ? 'selected' : '' }}>Fecha de inicio</option>
+                                <option value="fecha_fin" {{ request('sort_by') == 'fecha_fin' ? 'selected' : '' }}>Fecha de fin</option>
+                                <option value="estado" {{ request('sort_by') == 'estado' ? 'selected' : '' }}>Estado</option>
+                                <option value="created_at" {{ request('sort_by') == 'created_at' ? 'selected' : '' }}>Fecha de creación</option>
+                            </select>
+                        </div>
+
+                        <!-- Sort Direction -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700">
+                                <span class="flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
+                                    </svg>
+                                    Dirección
+                                </span>
+                            </label>
+                            <select name="sort_direction" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm">
+                                <option value="asc" {{ request('sort_direction') == 'asc' ? 'selected' : '' }}>Ascendente</option>
+                                <option value="desc" {{ request('sort_direction') == 'desc' ? 'selected' : '' }}>Descendente</option>
+                            </select>
+                        </div>
+
+                        <!-- Results Count -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700">
+                                <span class="flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                    </svg>
+                                    Resultados
+                                </span>
+                            </label>
+                            <div class="text-sm text-gray-600 px-4 py-2 bg-gray-50 rounded-xl">
+                                Mostrando {{ $periodos->firstItem() ?? 0 }} - {{ $periodos->lastItem() ?? 0 }} de {{ $periodos->total() }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row gap-4 items-center justify-between">
+                        <div class="flex gap-2">
+                            <button type="submit" 
+                                    class="bg-gradient-to-r from-orange-600 to-red-600 text-white px-6 py-2 rounded-xl font-semibold hover:from-orange-700 hover:to-red-700 transition-all duration-200 transform hover:scale-105 shadow-lg">
+                                <span class="flex items-center">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+                                    </svg>
+                                    Filtrar
+                                </span>
+                            </button>
+                            <a href="{{ route('periodos.index') }}" 
+                               class="bg-gray-500 text-white px-6 py-2 rounded-xl font-semibold hover:bg-gray-600 transition-all duration-200 transform hover:scale-105 shadow-lg">
+                                <span class="flex items-center">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                    Limpiar
+                                </span>
+                            </a>
+                        </div>
+
+                        <div class="text-sm text-gray-600">
+                            <span class="font-semibold">{{ $periodos->total() }}</span> períodos encontrados
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Action Button -->
+            <div class="flex justify-end mb-6 animate-fade-in-up" style="animation-delay: 0.4s;">
                 <a href="{{ route('periodos.create') }}" 
                    class="bg-gradient-to-r from-orange-600 to-red-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-orange-700 hover:to-red-700 transition-all duration-200 transform hover:scale-105 shadow-lg">
                     <span class="flex items-center">
@@ -155,11 +296,12 @@
                                                 </svg>
                                                 Editar
                                             </a>
-                                            <form action="{{ route('periodos.destroy', $p) }}" method="POST" class="inline"
-                                                  onsubmit="return confirm('¿Está seguro de eliminar este período?');">
+                                            <form action="{{ route('periodos.destroy', $p) }}" method="POST" class="inline">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" 
+                                                        data-confirm-delete="true"
+                                                        data-confirm-message="¿Está seguro de eliminar el período '{{ $p->nombre }}'? Esta acción no se puede deshacer."
                                                         class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-lg text-white bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200 transform hover:scale-105">
                                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>

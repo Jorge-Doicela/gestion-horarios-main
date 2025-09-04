@@ -35,7 +35,7 @@
 
             <!-- Form Card -->
             <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-white/20 p-8 animate-fade-in-up" style="animation-delay: 0.2s;">
-                <form action="{{ route('paralelos.update', $paralelo) }}" method="POST" class="space-y-6">
+                <form action="{{ route('paralelos.update', $paralelo) }}" method="POST" class="space-y-6" data-validate="true">
                     @csrf
                     @method('PUT')
 
@@ -51,9 +51,15 @@
                                     Nombre del Paralelo
                                 </span>
                             </label>
-                            <input type="text" name="nombre" value="{{ old('nombre', $paralelo->nombre) }}" required
+                            <input type="text" name="nombre" value="{{ old('nombre', $paralelo->nombre) }}" required maxlength="20"
                                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm"
                                    placeholder="Ej: A, B, C, 1, 2, 3">
+                            <div class="flex justify-between items-center">
+                                <p class="text-sm text-gray-500">Ingrese el nombre o identificador del paralelo</p>
+                                <div class="text-xs text-gray-500">
+                                    <span id="nombre-count">{{ strlen($paralelo->nombre) }}</span>/20 caracteres
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Carrera and Nivel Selection -->
@@ -152,4 +158,30 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Contador de caracteres para nombre
+            const nombreInput = document.querySelector('input[name="nombre"]');
+            const nombreCount = document.getElementById('nombre-count');
+            
+            if (nombreInput && nombreCount) {
+                nombreInput.addEventListener('input', function() {
+                    nombreCount.textContent = this.value.length;
+                    
+                    if (this.value.length > 15) {
+                        nombreCount.classList.add('text-yellow-600');
+                    } else {
+                        nombreCount.classList.remove('text-yellow-600');
+                    }
+                    
+                    if (this.value.length >= 20) {
+                        nombreCount.classList.add('text-red-600');
+                    } else {
+                        nombreCount.classList.remove('text-red-600');
+                    }
+                });
+            }
+        });
+    </script>
 @endsection

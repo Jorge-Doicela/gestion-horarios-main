@@ -35,7 +35,7 @@
 
             <!-- Form Card -->
             <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-white/20 p-8 animate-fade-in-up" style="animation-delay: 0.2s;">
-                <form action="{{ route('carreras.update', $carrera) }}" method="POST" class="space-y-6">
+                <form action="{{ route('carreras.update', $carrera) }}" method="POST" class="space-y-6" data-validate="true">
                     @csrf
                     @method('PUT')
 
@@ -49,9 +49,15 @@
                                 Nombre de la Carrera
                             </span>
                         </label>
-                        <input type="text" name="nombre" value="{{ old('nombre', $carrera->nombre) }}" required
+                        <input type="text" name="nombre" value="{{ old('nombre', $carrera->nombre) }}" required maxlength="100"
                                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm"
                                placeholder="Ej: Ingeniería en Sistemas, Medicina, Administración">
+                        <div class="flex justify-between items-center">
+                            <p class="text-sm text-gray-500">Nombre completo de la carrera académica</p>
+                            <div class="text-xs text-gray-500">
+                                <span id="nombre-count">{{ strlen($carrera->nombre) }}</span>/100 caracteres
+                            </div>
+                        </div>
                         @error('nombre')
                             <div class="flex items-center text-red-600 text-sm mt-1">
                                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -72,10 +78,15 @@
                                 Código de la Carrera
                             </span>
                         </label>
-                        <input type="text" name="codigo" value="{{ old('codigo', $carrera->codigo) }}" required
+                        <input type="text" name="codigo" value="{{ old('codigo', $carrera->codigo) }}" required maxlength="20" pattern="[A-Z0-9]+"
                                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm"
                                placeholder="Ej: IS, MED, ADM">
-                        <p class="text-sm text-gray-500">Use un código corto y único para identificar la carrera</p>
+                        <div class="flex justify-between items-center">
+                            <p class="text-sm text-gray-500">Use un código corto y único (solo letras mayúsculas y números)</p>
+                            <div class="text-xs text-gray-500">
+                                <span id="codigo-count">{{ strlen($carrera->codigo) }}</span>/20 caracteres
+                            </div>
+                        </div>
                         @error('codigo')
                             <div class="flex items-center text-red-600 text-sm mt-1">
                                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -96,10 +107,15 @@
                                 Descripción
                             </span>
                         </label>
-                        <textarea name="descripcion" rows="4"
+                        <textarea name="descripcion" rows="4" maxlength="500"
                                   class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm resize-none"
                                   placeholder="Describa brevemente los objetivos y características de la carrera...">{{ old('descripcion', $carrera->descripcion) }}</textarea>
-                        <p class="text-sm text-gray-500">Proporcione una descripción detallada de la carrera académica</p>
+                        <div class="flex justify-between items-center">
+                            <p class="text-sm text-gray-500">Proporcione una descripción detallada de la carrera académica</p>
+                            <div class="text-xs text-gray-500">
+                                <span id="descripcion-count">{{ strlen($carrera->descripcion ?? '') }}</span>/500 caracteres
+                            </div>
+                        </div>
                         @error('descripcion')
                             <div class="flex items-center text-red-600 text-sm mt-1">
                                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -187,4 +203,86 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Contador de caracteres para nombre
+            const nombreInput = document.querySelector('input[name="nombre"]');
+            const nombreCount = document.getElementById('nombre-count');
+            
+            if (nombreInput && nombreCount) {
+                nombreInput.addEventListener('input', function() {
+                    nombreCount.textContent = this.value.length;
+                    
+                    if (this.value.length > 80) {
+                        nombreCount.classList.add('text-yellow-600');
+                    } else {
+                        nombreCount.classList.remove('text-yellow-600');
+                    }
+                    
+                    if (this.value.length >= 100) {
+                        nombreCount.classList.add('text-red-600');
+                    } else {
+                        nombreCount.classList.remove('text-red-600');
+                    }
+                });
+            }
+            
+            // Contador de caracteres para código
+            const codigoInput = document.querySelector('input[name="codigo"]');
+            const codigoCount = document.getElementById('codigo-count');
+            
+            if (codigoInput && codigoCount) {
+                codigoInput.addEventListener('input', function() {
+                    // Convertir a mayúsculas automáticamente
+                    this.value = this.value.toUpperCase();
+                    codigoCount.textContent = this.value.length;
+                    
+                    if (this.value.length > 15) {
+                        codigoCount.classList.add('text-yellow-600');
+                    } else {
+                        codigoCount.classList.remove('text-yellow-600');
+                    }
+                    
+                    if (this.value.length >= 20) {
+                        codigoCount.classList.add('text-red-600');
+                    } else {
+                        codigoCount.classList.remove('text-red-600');
+                    }
+                });
+                
+                // Validación de formato
+                codigoInput.addEventListener('blur', function() {
+                    const pattern = /^[A-Z0-9]+$/;
+                    if (this.value && !pattern.test(this.value)) {
+                        this.setCustomValidity('El código solo puede contener letras mayúsculas y números');
+                    } else {
+                        this.setCustomValidity('');
+                    }
+                });
+            }
+            
+            // Contador de caracteres para descripción
+            const descripcionTextarea = document.querySelector('textarea[name="descripcion"]');
+            const descripcionCount = document.getElementById('descripcion-count');
+            
+            if (descripcionTextarea && descripcionCount) {
+                descripcionTextarea.addEventListener('input', function() {
+                    descripcionCount.textContent = this.value.length;
+                    
+                    if (this.value.length > 400) {
+                        descripcionCount.classList.add('text-yellow-600');
+                    } else {
+                        descripcionCount.classList.remove('text-yellow-600');
+                    }
+                    
+                    if (this.value.length >= 500) {
+                        descripcionCount.classList.add('text-red-600');
+                    } else {
+                        descripcionCount.classList.remove('text-red-600');
+                    }
+                });
+            }
+        });
+    </script>
 @endsection
