@@ -37,7 +37,8 @@ Route::post('/test-generar', function () {
 });
 
 // Ruta temporal sin middleware para probar la generación
-Route::post('/horarios/generar-test', [HorarioController::class, 'generarAutomatico'])->name('horarios.generar.test');
+Route::post('/horarios/generar-test', [HorarioController::class, 'generarAutomatico'])
+    ->name('horarios.generar.test');
 
 // Ruta para verificar períodos académicos
 Route::get('/debug-periodos', function () {
@@ -82,7 +83,6 @@ Route::middleware(['auth', 'role:Administrador'])
 // Carreras y Niveles - Administrador
 Route::middleware(['auth', 'role:Administrador'])->group(function () {
     Route::resource('carreras', CarreraController::class);
-
     Route::resource('niveles', NivelController::class)->parameters([
         'niveles' => 'nivel'
     ]);
@@ -106,19 +106,26 @@ Route::middleware('auth')->group(function () {
 | Rutas de Horarios
 |--------------------------------------------------------------------------
 */
-
-// Rutas personalizadas de horarios - deben ir **antes** del resource
 Route::middleware(['auth'])->group(function () {
-    Route::get('/horarios/calendario', [HorarioController::class, 'calendario'])->name('horarios.calendario');
-    Route::post('/horarios/generar', [HorarioController::class, 'generarAutomatico'])->name('horarios.generar');
+    // Vista del calendario
+    Route::get('/horarios/calendario', [HorarioController::class, 'calendario'])
+        ->name('horarios.calendario');
+
+    // Generación automática de horarios
+    Route::post('/horarios/generar', [HorarioController::class, 'generarAutomatico'])
+        ->name('horarios.generar');
 
     // Cambio de estado de un horario (opcional)
     Route::patch('/horarios/{horario}/cambiar-estado/{estado}', [HorarioController::class, 'cambiarEstado'])
         ->name('horarios.cambiarEstado');
-});
 
-// CRUD de horarios excluyendo show
-Route::middleware('auth')->group(function () {
+    // Exportaciones globales
+    Route::get('/horarios/export/pdf', [HorarioController::class, 'exportPDF'])
+        ->name('horarios.export.pdf');
+    Route::get('/horarios/export/excel', [HorarioController::class, 'exportExcel'])
+        ->name('horarios.export.excel');
+
+    // CRUD de horarios excluyendo show
     Route::resource('horarios', HorarioController::class)->except(['show']);
 });
 
@@ -128,3 +135,20 @@ Route::middleware('auth')->group(function () {
 |--------------------------------------------------------------------------
 */
 require __DIR__ . '/auth.php';
+
+/*
+|--------------------------------------------------------------------------
+| Consulta y exportación de horario para estudiantes
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'role:Estudiante'])->group(function () {
+    // Vista del horario para estudiante
+    Route::get('/horarios/estudiante', [HorarioController::class, 'horarioEstudiante'])
+        ->name('horarios.estudiante');
+
+    // Exportación del horario del estudiante
+    Route::get('/horario/estudiante/pdf', [HorarioController::class, 'exportPDFEstudiante'])
+        ->name('horario.estudiante.pdf');
+    Route::get('/horario/estudiante/excel', [HorarioController::class, 'exportExcelEstudiante'])
+        ->name('horario.estudiante.excel');
+});

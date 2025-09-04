@@ -7,11 +7,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
-use Laravel\Sanctum\HasApiTokens; // ✅ Importar el trait de Sanctum
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, HasRoles; // ✅ Usar el trait
+    use HasApiTokens, HasFactory, Notifiable, HasRoles;
 
     /**
      * Los atributos que son asignables masivamente.
@@ -22,7 +22,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        // No incluir 'role' aquí; Spatie lo maneja en tablas aparte
+        'paralelo_id', // 🔹 Necesario si cada usuario pertenece a un paralelo
     ];
 
     /**
@@ -45,7 +45,7 @@ class User extends Authenticatable
     ];
 
     /**
-     * Relación: Un usuario puede tener muchos documentos (si aplica en tu sistema).
+     * Relación: Un usuario puede tener muchos documentos.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
@@ -62,5 +62,15 @@ class User extends Authenticatable
     public function logs()
     {
         return $this->hasMany(Log::class);
+    }
+
+    /**
+     * Relación: Un usuario pertenece a un paralelo.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function paralelo()
+    {
+        return $this->belongsTo(Paralelo::class);
     }
 }

@@ -13,6 +13,12 @@ use App\Models\PeriodoAcademico;
 use App\Models\Conflicto;
 use Illuminate\Http\Request;
 use App\Services\GeneradorHorarios;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\HorariosExport;
+use App\Exports\HorarioEstudianteExport;
+
+
 
 class HorarioController extends Controller
 {
@@ -282,13 +288,13 @@ class HorarioController extends Controller
     {
         try {
             \Log::info('Iniciando generación automática de horarios', ['request' => $request->all()]);
-            
+
             $periodo = PeriodoAcademico::findOrFail($request->periodo_id);
             \Log::info('Período encontrado', ['periodo' => $periodo->toArray()]);
 
             $generador = new GeneradorHorarios($periodo);
             $resultado = $generador->generar();
-            
+
             \Log::info('Resultado de la generación', ['resultado' => $resultado]);
 
             if ($resultado['status'] === 'error') {
@@ -307,5 +313,95 @@ class HorarioController extends Controller
             ]);
             return redirect()->back()->withErrors(['error' => 'Error interno: ' . $e->getMessage()]);
         }
+    }
+
+    public function exportPDF(Request $request)
+    {
+        $periodo_id = $request->query('periodo_id') ?? PeriodoAcademico::first()->id;
+
+        $horarios = Horario::with(['materia', 'paralelo', 'docente', 'espacio', 'dia', 'hora'])
+            ->where('periodo_academico_id', $periodo_id)
+            ->get();
+
+        $dias = Dia::orderBy('id')->get();
+        $horas = Hora::orderBy('hora_inicio')->get();
+
+        $pdf = Pdf::loadView('horarios.pdf', compact('horarios', 'dias', 'horas'));
+        return $pdf->download('horario_periodo_' . $periodo_id . '.pdf');
+    }
+
+    public function exportExcel(Request $request)
+    {
+        $periodo_id = $request->query('periodo_id') ?? PeriodoAcademico::first()->id;
+        return Excel::download(new HorariosExport($periodo_id), 'horario_periodo_' . $periodo_id . '.xlsx');
+    }
+
+    // Mostrar horario del estudiante
+    // Mostrar horario del estudiante
+    public function horarioEstudiante(Request $request)
+    {
+        $user = auth()->user();
+        $paralelo = $user->paralelo;
+
+        $dias = \App\Models\Dia::orderBy('id')->get();
+        $horas = \App\Models\Hora::orderBy('hora_inicio')->get();
+
+        $horarios = collect();
+        $error = null;
+
+        if (!$paralelo) {
+            $error = 'No estás asignado a ningún paralelo.';
+        } else {
+            $horarios = Horario::with(['materia', 'docente', 'espacio', 'dia', 'hora'])
+                ->where('paralelo_id', $paralelo->id)
+                ->where('estado', 'activo')
+                ->get();
+        }
+
+        // Reorganizar horarios por hora y día para la vista
+        $horarios_matriz = [];
+        foreach ($horarios as $h) {
+            $horarios_matriz[$h->hora_id][$h->dia_id] = $h;
+        }
+
+        return view('horarios.estudiante', compact('horarios', 'horarios_matriz', 'dias', 'horas', 'paralelo', 'error'));
+    }
+
+    public function exportPDFEstudiante()
+    {
+        $user = auth()->user();
+        $paralelo = $user->paralelo;
+
+        $dias = \App\Models\Dia::orderBy('id')->get();
+        $horas = \App\Models\Hora::orderBy('hora_inicio')->get();
+
+        if (!$paralelo) {
+            return redirect()->back()->withErrors(['error' => 'No estás asignado a ningún paralelo.']);
+        }
+
+        $horarios = Horario::with(['materia', 'docente', 'espacio', 'dia', 'hora'])
+            ->where('paralelo_id', $paralelo->id)
+            ->where('estado', 'activo')
+            ->get();
+
+        // Convertir a matriz para usar en la vista
+        $horarios_matriz = [];
+        foreach ($horarios as $h) {
+            $horarios_matriz[$h->hora_id][$h->dia_id] = $h;
+        }
+
+        $pdf = Pdf::loadView('horarios.estudiante_pdf', compact('horas', 'dias', 'horarios_matriz', 'paralelo'));
+        return $pdf->download('horario_estudiante.pdf');
+    }
+    public function exportExcelEstudiante()
+    {
+        $user = auth()->user();
+        $paralelo = $user->paralelo;
+
+        if (!$paralelo) {
+            return redirect()->back()->withErrors(['error' => 'No estás asignado a ningún paralelo.']);
+        }
+
+        return Excel::download(new HorarioEstudianteExport($paralelo->id), 'horario_estudiante.xlsx');
     }
 }
