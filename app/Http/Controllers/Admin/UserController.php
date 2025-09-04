@@ -20,11 +20,33 @@ class UserController extends Controller
     /**
      * Listar usuarios
      */
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::with('roles')->paginate(10);
-        return view('admin.users.index', compact('users'));
+        $query = User::with('roles');
+
+        // Filtro por búsqueda (nombre o email)
+        if ($request->filled('q')) {
+            $q = $request->q;
+            $query->where(function ($subquery) use ($q) {
+                $subquery->where('name', 'like', "%{$q}%")
+                    ->orWhere('email', 'like', "%{$q}%");
+            });
+        }
+
+        // Filtro por rol
+        if ($request->filled('role')) {
+            $role = $request->role;
+            $query->whereHas('roles', function ($q) use ($role) {
+                $q->where('name', $role);
+            });
+        }
+
+        $users = $query->orderBy('name')->paginate(10)->withQueryString(); // mantiene los filtros en la paginación
+        $roles = Role::all(); // para el filtro en la vista
+
+        return view('admin.users.index', compact('users', 'roles'));
     }
+
 
     /**
      * Formulario de creación

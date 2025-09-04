@@ -18,11 +18,28 @@ class RoleController extends Controller
     /**
      * Mostrar todos los roles
      */
-    public function index()
+    public function index(Request $request)
     {
-        $roles = Role::with('permissions')->paginate(10);
+        $query = Role::with('permissions');
+
+        // Filtro por búsqueda de nombre
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where('name', 'like', "%{$search}%");
+        }
+
+        // Filtro opcional por número mínimo de permisos
+        if ($request->filled('min_permissions')) {
+            $min = (int) $request->input('min_permissions');
+            $query->withCount('permissions')->having('permissions_count', '>=', $min);
+        }
+
+        // Ordenar por nombre ascendente
+        $roles = $query->orderBy('name')->paginate(10)->withQueryString();
+
         return view('admin.roles.index', compact('roles'));
     }
+
 
     /**
      * Mostrar formulario de creación
