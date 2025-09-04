@@ -14,63 +14,77 @@
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    
+
     <!-- Form Validation Script -->
     <script src="{{ asset('js/form-validation.js') }}"></script>
-    
+
+    <!-- Custom Horarios CSS -->
+    <link rel="stylesheet" href="{{ asset('css/horarios.css') }}">
+
+    <!-- Custom Horarios JS -->
+    <script src="{{ asset('js/horarios.js') }}" defer></script>
+
     <!-- Custom Styles -->
     <style>
         .animate-fade-in {
             animation: fadeIn 0.5s ease-in-out;
         }
-        
+
         .animate-fade-in-up {
             animation: fadeInUp 0.6s ease-out;
         }
-        
+
         .animate-fade-in-down {
             animation: fadeInDown 0.6s ease-out;
         }
-        
+
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
         }
-        
+
         @keyframes fadeInUp {
-            from { 
-                opacity: 0; 
-                transform: translateY(20px); 
+            from {
+                opacity: 0;
+                transform: translateY(20px);
             }
-            to { 
-                opacity: 1; 
-                transform: translateY(0); 
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
-        
+
         @keyframes fadeInDown {
-            from { 
-                opacity: 0; 
-                transform: translateY(-20px); 
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
             }
-            to { 
-                opacity: 1; 
-                transform: translateY(0); 
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
-        
+
         .field-error {
             animation: slideDown 0.3s ease-out;
         }
-        
+
         @keyframes slideDown {
-            from { 
-                opacity: 0; 
-                transform: translateY(-10px); 
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
             }
-            to { 
-                opacity: 1; 
-                transform: translateY(0); 
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
     </style>
@@ -93,7 +107,7 @@
         <main class="animate-fade-in">
             <!-- Flash Messages -->
             <x-flash-messages />
-            
+
             @yield('content')
         </main>
     </div>

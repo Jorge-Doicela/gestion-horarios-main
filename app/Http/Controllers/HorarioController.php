@@ -15,8 +15,11 @@ use Illuminate\Http\Request;
 use App\Services\GeneradorHorarios;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use App\Exports\HorariosExport;
 use App\Exports\HorarioEstudianteExport;
+use App\Exports\HorariosFiltradosExport;
 
 
 
@@ -61,26 +64,26 @@ class HorarioController extends Controller
                 $q->whereHas('materia', function ($subQuery) use ($search) {
                     $subQuery->where('nombre', 'like', "%{$search}%");
                 })
-                ->orWhereHas('docente', function ($subQuery) use ($search) {
-                    $subQuery->where('nombre', 'like', "%{$search}%");
-                })
-                ->orWhereHas('paralelo', function ($subQuery) use ($search) {
-                    $subQuery->where('nombre', 'like', "%{$search}%");
-                })
-                ->orWhereHas('espacio', function ($subQuery) use ($search) {
-                    $subQuery->where('nombre', 'like', "%{$search}%");
-                });
+                    ->orWhereHas('docente', function ($subQuery) use ($search) {
+                        $subQuery->where('nombre', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('paralelo', function ($subQuery) use ($search) {
+                        $subQuery->where('nombre', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('espacio', function ($subQuery) use ($search) {
+                        $subQuery->where('nombre', 'like', "%{$search}%");
+                    });
             });
         }
 
         // Ordenamiento
         $sortBy = $request->get('sort_by', 'created_at');
         $sortDirection = $request->get('sort_direction', 'desc');
-        
+
         if (in_array($sortBy, ['materia', 'docente', 'paralelo', 'espacio'])) {
             $query->join($sortBy . 's', 'horarios.' . $sortBy . '_id', '=', $sortBy . 's.id')
-                  ->orderBy($sortBy . 's.nombre', $sortDirection)
-                  ->select('horarios.*');
+                ->orderBy($sortBy . 's.nombre', $sortDirection)
+                ->select('horarios.*');
         } else {
             $query->orderBy($sortBy, $sortDirection);
         }
@@ -95,11 +98,11 @@ class HorarioController extends Controller
         $paralelos = Paralelo::orderBy('nombre')->get();
 
         return view('horarios.index', compact(
-            'horarios', 
-            'estados', 
-            'modalidades', 
-            'periodos', 
-            'docentes', 
+            'horarios',
+            'estados',
+            'modalidades',
+            'periodos',
+            'docentes',
             'paralelos'
         ));
     }
@@ -426,6 +429,107 @@ class HorarioController extends Controller
     {
         $periodo_id = $request->query('periodo_id') ?? PeriodoAcademico::first()->id;
         return Excel::download(new HorariosExport($periodo_id), 'horario_periodo_' . $periodo_id . '.xlsx');
+    }
+
+    // Exportar horarios filtrados a Excel
+    public function exportExcelFiltrado(Request $request)
+    {
+        $query = Horario::with(['paralelo', 'materia', 'docente', 'espacio', 'dia', 'hora', 'periodo']);
+
+        // Aplicar los mismos filtros que en el index
+        if ($request->filled('estado')) {
+            $query->where('estado', $request->estado);
+        }
+
+        if ($request->filled('modalidad')) {
+            $query->where('modalidad', $request->modalidad);
+        }
+
+        if ($request->filled('periodo_id')) {
+            $query->where('periodo_academico_id', $request->periodo_id);
+        }
+
+        if ($request->filled('docente_id')) {
+            $query->where('docente_id', $request->docente_id);
+        }
+
+        if ($request->filled('paralelo_id')) {
+            $query->where('paralelo_id', $request->paralelo_id);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('materia', function ($subQuery) use ($search) {
+                    $subQuery->where('nombre', 'like', "%{$search}%");
+                })
+                    ->orWhereHas('docente', function ($subQuery) use ($search) {
+                        $subQuery->where('nombre', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('paralelo', function ($subQuery) use ($search) {
+                        $subQuery->where('nombre', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('espacio', function ($subQuery) use ($search) {
+                        $subQuery->where('nombre', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        $horarios = $query->get();
+
+        $filename = 'horarios_filtrados_' . now()->format('Y-m-d_H-i-s') . '.xlsx';
+        return Excel::download(new HorariosFiltradosExport($horarios), $filename);
+    }
+
+    // Exportar horarios filtrados a PDF
+    public function exportPDFFiltrado(Request $request)
+    {
+        $query = Horario::with(['paralelo', 'materia', 'docente', 'espacio', 'dia', 'hora', 'periodo']);
+
+        // Aplicar los mismos filtros que en el index
+        if ($request->filled('estado')) {
+            $query->where('estado', $request->estado);
+        }
+
+        if ($request->filled('modalidad')) {
+            $query->where('modalidad', $request->modalidad);
+        }
+
+        if ($request->filled('periodo_id')) {
+            $query->where('periodo_academico_id', $request->periodo_id);
+        }
+
+        if ($request->filled('docente_id')) {
+            $query->where('docente_id', $request->docente_id);
+        }
+
+        if ($request->filled('paralelo_id')) {
+            $query->where('paralelo_id', $request->paralelo_id);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('materia', function ($subQuery) use ($search) {
+                    $subQuery->where('nombre', 'like', "%{$search}%");
+                })
+                    ->orWhereHas('docente', function ($subQuery) use ($search) {
+                        $subQuery->where('nombre', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('paralelo', function ($subQuery) use ($search) {
+                        $subQuery->where('nombre', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('espacio', function ($subQuery) use ($search) {
+                        $subQuery->where('nombre', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        $horarios = $query->get();
+
+        $pdf = Pdf::loadView('horarios.pdf_filtrado', compact('horarios'));
+        $filename = 'horarios_filtrados_' . now()->format('Y-m-d_H-i-s') . '.pdf';
+        return $pdf->download($filename);
     }
 
     // Mostrar horario del estudiante

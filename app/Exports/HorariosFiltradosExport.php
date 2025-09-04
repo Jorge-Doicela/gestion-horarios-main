@@ -12,32 +12,25 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 use Illuminate\Support\Facades\Auth;
 
-class HorariosExport implements FromCollection, WithHeadings, WithStyles, WithEvents
+class HorariosFiltradosExport implements FromCollection, WithHeadings, WithStyles, WithEvents
 {
-    protected $periodo_id;
+    protected $horarios;
 
-    public function __construct($periodo_id)
+    public function __construct($horarios)
     {
-        $this->periodo_id = $periodo_id;
+        $this->horarios = $horarios;
     }
 
     public function collection()
     {
-        $query = Horario::with(['materia', 'paralelo', 'docente', 'espacio', 'dia', 'hora', 'periodo'])
-            ->where('periodo_academico_id', $this->periodo_id);
-
-        if (Auth::user()->hasRole('Docente')) {
-            $query->where('docente_id', Auth::id());
-        }
-
-        return $query->get()->map(function ($h) {
+        return $this->horarios->map(function ($h) {
             return [
-                'Día' => $h->dia->nombre,
-                'Hora' => $h->hora->hora_inicio . ' - ' . $h->hora->hora_fin,
-                'Materia' => $h->materia->nombre,
                 'Paralelo' => $h->paralelo->nombre,
+                'Materia' => $h->materia->nombre,
                 'Docente' => $h->docente->nombre,
                 'Espacio' => $h->espacio?->nombre ?? 'Sin asignar',
+                'Día' => $h->dia->nombre,
+                'Hora' => $h->hora->hora_inicio . ' - ' . $h->hora->hora_fin,
                 'Período' => $h->periodo->nombre,
                 'Modalidad' => ucfirst($h->modalidad),
                 'Estado' => ucfirst($h->estado),
@@ -50,12 +43,12 @@ class HorariosExport implements FromCollection, WithHeadings, WithStyles, WithEv
     public function headings(): array
     {
         return [
-            'DÍA',
-            'HORARIO',
-            'MATERIA',
             'PARALELO',
+            'MATERIA',
             'DOCENTE',
             'ESPACIO',
+            'DÍA',
+            'HORARIO',
             'PERÍODO',
             'MODALIDAD',
             'ESTADO',
@@ -71,7 +64,7 @@ class HorariosExport implements FromCollection, WithHeadings, WithStyles, WithEv
                 'font' => [
                     'bold' => true,
                     'color' => ['rgb' => 'FFFFFF'],
-                    'size' => 11
+                    'size' => 12
                 ],
                 'alignment' => [
                     'horizontal' => 'center',
@@ -94,7 +87,7 @@ class HorariosExport implements FromCollection, WithHeadings, WithStyles, WithEv
                 // Agregar título del reporte
                 $sheet->insertNewRowBefore(1, 3);
                 $sheet->mergeCells('A1:K1');
-                $sheet->setCellValue('A1', 'HORARIO ACADÉMICO COMPLETO - PERÍODO ACADÉMICO');
+                $sheet->setCellValue('A1', 'REPORTE DE HORARIOS ACADÉMICOS');
                 $sheet->getStyle('A1')->applyFromArray([
                     'font' => [
                         'bold' => true,
@@ -212,9 +205,8 @@ class HorariosExport implements FromCollection, WithHeadings, WithStyles, WithEv
                     ]);
 
                     // Centrar columnas específicas
-                    $sheet->getStyle("A$row:B$row")->getAlignment()->setHorizontal('center');
+                    $sheet->getStyle("E$row:F$row")->getAlignment()->setHorizontal('center');
                     $sheet->getStyle("H$row:I$row")->getAlignment()->setHorizontal('center');
-                    $sheet->getStyle("J$row:K$row")->getAlignment()->setHorizontal('center');
                 }
 
                 // Autoajustar columnas

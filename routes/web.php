@@ -125,6 +125,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/horarios/export/excel', [HorarioController::class, 'exportExcel'])
         ->name('horarios.export.excel');
 
+    // Exportaciones filtradas
+    Route::get('/horarios/export/pdf-filtrado', [HorarioController::class, 'exportPDFFiltrado'])
+        ->name('horarios.export.pdf.filtrado');
+    Route::get('/horarios/export/excel-filtrado', [HorarioController::class, 'exportExcelFiltrado'])
+        ->name('horarios.export.excel.filtrado');
+
     // CRUD de horarios excluyendo show
     Route::resource('horarios', HorarioController::class)->except(['show']);
 });
