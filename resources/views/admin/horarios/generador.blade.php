@@ -41,6 +41,16 @@
                             </select>
                         </div>
                         <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Niveles (opcional)</label>
+                            <select name="niveles[]" id="nivelesSelect" multiple
+                                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500">
+                                @foreach ($niveles ?? [] as $nivel)
+                                    <option value="{{ $nivel->id }}">{{ $nivel->nombre }}</option>
+                                @endforeach
+                            </select>
+                            <small class="text-gray-500">Si no selecciona, se considerarán todos</small>
+                        </div>
+                        <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-1">Modalidades a considerar</label>
                             <div class="grid grid-cols-3 gap-2">
                                 <label class="inline-flex items-center space-x-2"><input type="checkbox"
@@ -53,10 +63,11 @@
                         </div>
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-1">Paralelos (opcional)</label>
-                            <select name="paralelos[]" multiple
+                            <select name="paralelos[]" id="paralelosSelect" multiple
                                 class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500">
                                 @foreach ($paralelos as $paralelo)
-                                    <option value="{{ $paralelo->id }}">{{ $paralelo->nombre }}</option>
+                                    <option value="{{ $paralelo->id }}" data-nivel="{{ $paralelo->nivel_id }}">
+                                        {{ $paralelo->nombre }}</option>
                                 @endforeach
                             </select>
                             <small class="text-gray-500">Si no selecciona, se considerarán todos</small>
@@ -143,4 +154,25 @@
             </div>
         </div>
     </div>
+    <script>
+        // Filtrar paralelos por niveles seleccionados
+        (function() {
+            const niveles = document.getElementById('nivelesSelect');
+            const paralelos = document.getElementById('paralelosSelect');
+            if (!niveles || !paralelos) return;
+
+            function filtrar() {
+                const seleccionados = Array.from(niveles.options).filter(o => o.selected).map(o => o.value);
+                const options = paralelos.querySelectorAll('option');
+                options.forEach(opt => {
+                    const optNivel = opt.getAttribute('data-nivel');
+                    const visible = seleccionados.length === 0 || seleccionados.includes(optNivel);
+                    opt.style.display = visible ? '' : 'none';
+                    if (!visible && opt.selected) opt.selected = false;
+                });
+            }
+            niveles.addEventListener('change', filtrar);
+            filtrar();
+        })();
+    </script>
 @endsection

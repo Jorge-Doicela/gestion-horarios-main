@@ -28,7 +28,11 @@ class GeneradorHorarios
 
     public function generar()
     {
-        $materias = Materia::with('docentes', 'carrera', 'nivel')->get();
+        $materiasQ = Materia::with('docentes', 'carrera', 'nivel');
+        if (!empty($this->options['niveles'])) {
+            $materiasQ->whereIn('nivel_id', $this->options['niveles']);
+        }
+        $materias = $materiasQ->get();
         if ($this->options['priorizar_materias']) {
             $materias = $materias->sortByDesc(function ($m) {
                 $prioridad = (int) $this->obtenerRestriccion($m, 'prioridad', 0);
@@ -190,7 +194,11 @@ class GeneradorHorarios
 
     public function simular()
     {
-        $materias = Materia::with('docentes', 'carrera', 'nivel')->get();
+        $materiasQ = Materia::with('docentes', 'carrera', 'nivel');
+        if (!empty($this->options['niveles'])) {
+            $materiasQ->whereIn('nivel_id', $this->options['niveles']);
+        }
+        $materias = $materiasQ->get();
         if ($this->options['priorizar_materias']) {
             $materias = $materias->sortByDesc(function ($m) {
                 $prioridad = (int) $this->obtenerRestriccion($m, 'prioridad', 0);
@@ -351,6 +359,7 @@ class GeneradorHorarios
     {
         return [
             'modalidades' => isset($options['modalidades']) ? (array) $options['modalidades'] : ['presencial', 'virtual', 'hibrida'],
+            'niveles' => isset($options['niveles']) ? array_map('intval', (array) $options['niveles']) : [],
             'paralelos' => isset($options['paralelos']) ? array_map('intval', (array) $options['paralelos']) : [],
             'docentes' => isset($options['docentes']) ? array_map('intval', (array) $options['docentes']) : [],
             'dias' => isset($options['dias']) ? array_map('intval', (array) $options['dias']) : Dia::pluck('id')->all(),

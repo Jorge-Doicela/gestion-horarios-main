@@ -218,6 +218,30 @@
                                 class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm">
                         </div>
 
+                        <!-- Nivel Filter -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700">
+                                <span class="flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-indigo-600" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M3 7h18M3 12h18M3 17h18"></path>
+                                    </svg>
+                                    Nivel
+                                </span>
+                            </label>
+                            <select name="nivel_id" id="nivelFilter"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm">
+                                <option value="">Todos los niveles</option>
+                                @foreach ($niveles as $nivel)
+                                    <option value="{{ $nivel->id }}"
+                                        {{ request('nivel_id') == $nivel->id ? 'selected' : '' }}>
+                                        {{ $nivel->nombre }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
                         <!-- Paralelo Filter -->
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700">
@@ -231,11 +255,11 @@
                                     Paralelo
                                 </span>
                             </label>
-                            <select name="paralelo_id"
+                            <select name="paralelo_id" id="paraleloFilter"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm">
                                 <option value="">Todos los paralelos</option>
                                 @foreach ($paralelos as $paralelo)
-                                    <option value="{{ $paralelo->id }}"
+                                    <option value="{{ $paralelo->id }}" data-nivel="{{ $paralelo->nivel_id }}"
                                         {{ request('paralelo_id') == $paralelo->id ? 'selected' : '' }}>
                                         {{ $paralelo->nombre }}
                                     </option>
@@ -460,5 +484,26 @@
         document.getElementById('viewType').addEventListener('change', function() {
             document.getElementById('filterForm').submit();
         });
+
+        // Dependencia Nivel -> Paralelo en filtros
+        (function() {
+            const nivel = document.getElementById('nivelFilter');
+            const paralelo = document.getElementById('paraleloFilter');
+            if (!nivel || !paralelo) return;
+
+            function filtrar() {
+                const nivelId = nivel.value;
+                const options = paralelo.querySelectorAll('option');
+                options.forEach((opt, idx) => {
+                    if (idx === 0) return;
+                    const optNivel = opt.getAttribute('data-nivel');
+                    const visible = !nivelId || optNivel === nivelId;
+                    opt.style.display = visible ? '' : 'none';
+                    if (!visible && opt.selected) opt.selected = false;
+                });
+            }
+            nivel.addEventListener('change', filtrar);
+            filtrar();
+        })();
     </script>
 @endsection

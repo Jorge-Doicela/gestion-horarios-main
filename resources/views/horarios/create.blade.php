@@ -88,7 +88,31 @@
                             <p class="text-gray-600">Seleccione el paralelo y la materia para el horario</p>
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <!-- Nivel Field -->
+                            <div class="space-y-2">
+                                <label class="block text-sm font-semibold text-gray-700">
+                                    <span class="flex items-center">
+                                        <svg class="w-4 h-4 mr-2 text-indigo-600" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M3 7h18M3 12h18M3 17h18"></path>
+                                        </svg>
+                                        Nivel *
+                                    </span>
+                                </label>
+                                <select name="nivel_id" id="nivelSelect" required
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm">
+                                    <option value="">Seleccione un nivel</option>
+                                    @foreach ($niveles as $nivel)
+                                        <option value="{{ $nivel->id }}">{{ $nivel->nombre }}</option>
+                                    @endforeach
+                                </select>
+                                @error('nivel_id')
+                                    <span class="text-red-600 text-sm">{{ $message }}</span>
+                                @enderror
+                            </div>
+
                             <!-- Paralelo Field -->
                             <div class="space-y-2">
                                 <label class="block text-sm font-semibold text-gray-700">
@@ -102,11 +126,12 @@
                                         Paralelo *
                                     </span>
                                 </label>
-                                <select name="paralelo_id" required
+                                <select name="paralelo_id" id="paraleloSelect" required
                                     class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm">
                                     <option value="">Seleccione un paralelo</option>
                                     @foreach ($paralelos as $paralelo)
-                                        <option value="{{ $paralelo->id }}">{{ $paralelo->nombre }}</option>
+                                        <option value="{{ $paralelo->id }}" data-nivel="{{ $paralelo->nivel_id }}">
+                                            {{ $paralelo->nombre }}</option>
                                     @endforeach
                                 </select>
                                 @error('paralelo_id')
@@ -560,6 +585,29 @@
             updateStepDisplay();
             setupScheduleSelection();
             setupFormValidation();
+            setupNivelParaleloDependencia();
+
+            function setupNivelParaleloDependencia() {
+                const nivelSelect = document.getElementById('nivelSelect');
+                const paraleloSelect = document.getElementById('paraleloSelect');
+
+                function filtrarParalelos() {
+                    const nivelId = nivelSelect.value;
+                    const options = paraleloSelect.querySelectorAll('option');
+                    options.forEach((opt, idx) => {
+                        if (idx === 0) return; // skip placeholder
+                        const optNivel = opt.getAttribute('data-nivel');
+                        const visible = !nivelId || optNivel === nivelId;
+                        opt.style.display = visible ? '' : 'none';
+                        if (!visible && opt.selected) {
+                            opt.selected = false;
+                        }
+                    });
+                }
+
+                nivelSelect.addEventListener('change', filtrarParalelos);
+                filtrarParalelos();
+            }
 
             // Step navigation
             nextBtn.addEventListener('click', function() {
