@@ -81,6 +81,9 @@ Route::middleware(['auth', 'role:Administrador'])
         // Generador de horarios - pantalla para administradores
         Route::get('/horarios/generador', [HorarioController::class, 'generador'])
             ->name('horarios.generador');
+        // CRUD de catálogo de Días y Horas
+        Route::resource('dias', \App\Http\Controllers\DiaController::class);
+        Route::resource('horas', \App\Http\Controllers\HoraController::class);
     });
 
 // Carreras y Niveles - Administrador

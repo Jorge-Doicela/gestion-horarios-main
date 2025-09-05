@@ -253,7 +253,7 @@
                             <p class="text-gray-600">Seleccione el día y hora para el horario</p>
                         </div>
 
-                        <!-- Weekly Schedule Grid -->
+                        <!-- Weekly Schedule Grid (multi-selección) -->
                         <div class="mb-6">
                             <h3 class="text-lg font-semibold text-gray-800 mb-4">Horario Semanal</h3>
                             <div class="bg-gray-50 rounded-xl p-4">
@@ -304,9 +304,8 @@
                             </div>
                         </div>
 
-                        <!-- Hidden inputs for form submission -->
-                        <input type="hidden" name="dia_id" id="dia_id" required>
-                        <input type="hidden" name="hora_id" id="hora_id" required>
+                        <!-- Hidden inputs for form submission (multiple) -->
+                        <div id="seleccionesContainer"></div>
                     </div>
 
                     <!-- Step 3: Configuration -->
@@ -593,12 +592,12 @@
             const prevBtn = document.getElementById('prevBtn');
             const submitBtn = document.getElementById('submitBtn');
 
-            // Schedule selection
+            // Schedule selection (multi)
             const scheduleCells = document.querySelectorAll('.schedule-cell');
             const selectedScheduleDisplay = document.getElementById('selectedScheduleDisplay');
             const clearSelection = document.getElementById('clearSelection');
-            const diaInput = document.getElementById('dia_id');
-            const horaInput = document.getElementById('hora_id');
+            const seleccionesContainer = document.getElementById('seleccionesContainer');
+            let seleccionados = [];
 
             // Form validation
             const form = document.getElementById('horarioForm');
@@ -724,8 +723,8 @@
 
                 // Special validation for step 2
                 if (currentStep === 2) {
-                    if (!diaInput.value || !horaInput.value) {
-                        alert('Por favor seleccione un día y hora del horario semanal.');
+                    if (seleccionados.length === 0) {
+                        alert('Por favor seleccione al menos un día y una hora del horario semanal.');
                         isValid = false;
                     }
                 }
@@ -736,40 +735,66 @@
             function setupScheduleSelection() {
                 scheduleCells.forEach(cell => {
                     cell.addEventListener('click', function() {
-                        // Remove previous selection
-                        scheduleCells.forEach(c => {
-                            c.classList.remove('bg-indigo-100', 'border-indigo-300');
-                            c.classList.add('border-gray-200');
-                            c.innerHTML = '<div class="text-gray-400">Disponible</div>';
-                        });
+                        const key = `${this.dataset.dia}-${this.dataset.hora}`;
+                        const idx = seleccionados.findIndex(s => s.key === key);
+                        if (idx >= 0) {
+                            // deseleccionar
+                            seleccionados.splice(idx, 1);
+                            this.classList.remove('bg-indigo-100', 'border-indigo-300');
+                            this.classList.add('border-gray-200');
+                            this.innerHTML = '<div class="text-gray-400">Disponible</div>';
+                        } else {
+                            // seleccionar
+                            seleccionados.push({
+                                key,
+                                dia: this.dataset.dia,
+                                hora: this.dataset.hora,
+                                diaNombre: this.dataset.diaNombre,
+                                horaTexto: this.dataset.horaTexto
+                            });
+                            this.classList.remove('border-gray-200');
+                            this.classList.add('bg-indigo-100', 'border-indigo-300');
+                            this.innerHTML =
+                                '<div class="text-indigo-700 font-medium">Seleccionado</div>';
+                        }
 
-                        // Select current cell
-                        this.classList.remove('border-gray-200');
-                        this.classList.add('bg-indigo-100', 'border-indigo-300');
-                        this.innerHTML =
-                            '<div class="text-indigo-700 font-medium">Seleccionado</div>';
-
-                        // Update hidden inputs
-                        diaInput.value = this.dataset.dia;
-                        horaInput.value = this.dataset.hora;
-
-                        // Show selection display
-                        selectedScheduleDisplay.style.display = 'block';
-                        document.getElementById('selectedDay').textContent = this.dataset.diaNombre;
-                        document.getElementById('selectedTime').textContent = this.dataset
-                            .horaTexto;
+                        renderSelecciones();
                     });
                 });
 
                 clearSelection.addEventListener('click', function() {
+                    seleccionados = [];
                     scheduleCells.forEach(c => {
                         c.classList.remove('bg-indigo-100', 'border-indigo-300');
                         c.classList.add('border-gray-200');
                         c.innerHTML = '<div class="text-gray-400">Disponible</div>';
                     });
+                    renderSelecciones();
+                });
+            }
+
+            function renderSelecciones() {
+                seleccionesContainer.innerHTML = '';
+                if (seleccionados.length === 0) {
                     selectedScheduleDisplay.style.display = 'none';
-                    diaInput.value = '';
-                    horaInput.value = '';
+                    return;
+                }
+                selectedScheduleDisplay.style.display = 'block';
+                const diasTxt = seleccionados.map(s => s.diaNombre).join(', ');
+                const horasTxt = seleccionados.map(s => s.horaTexto).join(', ');
+                document.getElementById('selectedDay').textContent = diasTxt;
+                document.getElementById('selectedTime').textContent = horasTxt;
+                seleccionados.forEach((s, i) => {
+                    const d = document.createElement('input');
+                    d.type = 'hidden';
+                    d.name = `selecciones[${i}][dia_id]`;
+                    d.value = s.dia;
+                    seleccionesContainer.appendChild(d);
+                    const h = document.createElement('input');
+                    h.type = 'hidden';
+                    h.name = `selecciones[${i}][hora_id]`;
+                    h.value = s.hora;
+                    seleccionesContainer.appendChild(h);
                 });
             }
 

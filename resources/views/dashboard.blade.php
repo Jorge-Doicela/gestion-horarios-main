@@ -326,6 +326,40 @@
                                 </a>
                             </div>
 
+                            {{-- Días --}}
+                            <div class="group animate-fade-in-up" style="animation-delay: 1.15s;">
+                                <a href="{{ route('admin.dias.index') }}"
+                                    class="block p-6 bg-gradient-to-br from-sky-500 to-sky-600 text-white rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 group-hover:scale-105">
+                                    <div class="flex flex-col items-center text-center">
+                                        <div
+                                            class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mb-3 group-hover:bg-white/30 transition-colors duration-300">
+                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14" />
+                                            </svg>
+                                        </div>
+                                        <h3 class="font-semibold text-sm">Días</h3>
+                                    </div>
+                                </a>
+                            </div>
+
+                            {{-- Horas --}}
+                            <div class="group animate-fade-in-up" style="animation-delay: 1.2s;">
+                                <a href="{{ route('admin.horas.index') }}"
+                                    class="block p-6 bg-gradient-to-br from-lime-500 to-lime-600 text-white rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 group-hover:scale-105">
+                                    <div class="flex flex-col items-center text-center">
+                                        <div
+                                            class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mb-3 group-hover:bg-white/30 transition-colors duration-300">
+                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0" />
+                                            </svg>
+                                        </div>
+                                        <h3 class="font-semibold text-sm">Horas</h3>
+                                    </div>
+                                </a>
+                            </div>
+
                             {{-- Periodos Académicos --}}
                             <div class="group animate-fade-in-up" style="animation-delay: 1.2s;">
                                 <a href="{{ route('periodos.index') }}"

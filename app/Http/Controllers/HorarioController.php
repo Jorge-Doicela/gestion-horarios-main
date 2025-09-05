@@ -170,8 +170,9 @@ class HorarioController extends Controller
             'materia_id' => 'required|exists:materias,id',
             'docente_id' => 'required|exists:docentes,id',
             'espacio_id' => 'nullable|exists:espacios,id',
-            'dia_id' => 'required|exists:dias,id',
-            'hora_id' => 'required|exists:horas,id',
+            'selecciones' => 'required|array|min:1',
+            'selecciones.*.dia_id' => 'required|exists:dias,id',
+            'selecciones.*.hora_id' => 'required|exists:horas,id',
             'periodo_academico_id' => 'required|exists:periodos_academicos,id',
 
             'fecha_inicio' => 'required|date',
@@ -191,10 +192,11 @@ class HorarioController extends Controller
             'docente_id.required' => 'El docente es obligatorio.',
             'docente_id.exists' => 'El docente seleccionado no existe.',
             'espacio_id.exists' => 'El espacio seleccionado no existe.',
-            'dia_id.required' => 'El día es obligatorio.',
-            'dia_id.exists' => 'El día seleccionado no existe.',
-            'hora_id.required' => 'La hora es obligatoria.',
-            'hora_id.exists' => 'La hora seleccionada no existe.',
+            'selecciones.required' => 'Debe seleccionar al menos un día y una hora.',
+            'selecciones.*.dia_id.required' => 'El día es obligatorio.',
+            'selecciones.*.dia_id.exists' => 'El día seleccionado no existe.',
+            'selecciones.*.hora_id.required' => 'La hora es obligatoria.',
+            'selecciones.*.hora_id.exists' => 'La hora seleccionada no existe.',
             'periodo_academico_id.required' => 'El período académico es obligatorio.',
             'periodo_academico_id.exists' => 'El período académico seleccionado no existe.',
             'fecha_inicio.required' => 'La fecha de inicio es obligatoria.',
@@ -225,10 +227,16 @@ class HorarioController extends Controller
             return back()->withInput()->withErrors(['paralelo_id' => 'El paralelo no pertenece al nivel y carrera seleccionados.']);
         }
 
+        // Validación de conflictos por cada selección
         if ($validated['estado'] === 'activo') {
-            $conflictos = $this->validarConflictos($validated);
-            if ($conflictos) {
-                return back()->withInput()->withErrors($conflictos);
+            foreach ($validated['selecciones'] as $sel) {
+                $tmp = $validated;
+                $tmp['dia_id'] = $sel['dia_id'];
+                $tmp['hora_id'] = $sel['hora_id'];
+                $conflictos = $this->validarConflictos($tmp);
+                if ($conflictos) {
+                    return back()->withInput()->withErrors($conflictos);
+                }
             }
         }
 
@@ -237,9 +245,13 @@ class HorarioController extends Controller
             return $verificacion;
         }
 
-        $data = $validated;
-        unset($data['nivel_id'], $data['carrera_id']);
-        Horario::create($data);
+        foreach ($validated['selecciones'] as $sel) {
+            $data = $validated;
+            unset($data['nivel_id'], $data['carrera_id'], $data['selecciones']);
+            $data['dia_id'] = $sel['dia_id'];
+            $data['hora_id'] = $sel['hora_id'];
+            Horario::create($data);
+        }
 
         return redirect()->route('horarios.index')->with('success', 'Horario creado correctamente.');
     }
