@@ -243,7 +243,7 @@
                         </div>
 
                         <!-- Nivel Filter -->
-                        <div class="space-y-2">
+                        <div class="space-y-2" id="nivelContainer" style="display: none;">
                             <label class="block text-sm font-semibold text-gray-700">
                                 <span class="flex items-center">
                                     <svg class="w-4 h-4 mr-2 text-indigo-600" fill="none" stroke="currentColor"
@@ -267,7 +267,7 @@
                         </div>
 
                         <!-- Paralelo Filter -->
-                        <div class="space-y-2">
+                        <div class="space-y-2" id="paraleloContainer" style="display: none;">
                             <label class="block text-sm font-semibold text-gray-700">
                                 <span class="flex items-center">
                                     <svg class="w-4 h-4 mr-2 text-indigo-600" fill="none" stroke="currentColor"
@@ -510,30 +510,98 @@
             document.getElementById('filterForm').submit();
         });
 
-        // Dependencia Carrera/Nivel -> Paralelo en filtros
+        // Filtros progresivos: Carrera -> Nivel -> Paralelo
         (function() {
-            const carrera = document.getElementById('carreraFilter');
-            const nivel = document.getElementById('nivelFilter');
-            const paralelo = document.getElementById('paraleloFilter');
-            if (!paralelo) return;
+            const carreraFilter = document.getElementById('carreraFilter');
+            const nivelFilter = document.getElementById('nivelFilter');
+            const paraleloFilter = document.getElementById('paraleloFilter');
+            const nivelContainer = document.getElementById('nivelContainer');
+            const paraleloContainer = document.getElementById('paraleloContainer');
 
-            function filtrar() {
-                const nivelId = nivel ? nivel.value : '';
-                const carreraId = carrera ? carrera.value : '';
-                const options = paralelo.querySelectorAll('option');
-                options.forEach((opt, idx) => {
-                    if (idx === 0) return;
-                    const optNivel = opt.getAttribute('data-nivel');
-                    const optCarrera = opt.getAttribute('data-carrera');
-                    const visible = (!nivelId || optNivel === nivelId) && (!carreraId || optCarrera ===
-                        carreraId);
-                    opt.style.display = visible ? '' : 'none';
-                    if (!visible && opt.selected) opt.selected = false;
+            if (!carreraFilter || !nivelFilter || !paraleloFilter) return;
+
+            // Función para filtrar niveles disponibles basándose en paralelos de la carrera seleccionada
+            function filtrarNivelesPorCarrera(carreraId) {
+                if (!carreraId) {
+                    // Si no hay carrera seleccionada, ocultar nivel y paralelo
+                    nivelContainer.style.display = 'none';
+                    paraleloContainer.style.display = 'none';
+                    nivelFilter.value = '';
+                    paraleloFilter.value = '';
+                    return;
+                }
+
+                // Mostrar contenedor de nivel
+                nivelContainer.style.display = 'block';
+
+                // Obtener todos los paralelos de la carrera seleccionada
+                const paralelos = paraleloFilter.querySelectorAll('option[data-carrera]');
+                const nivelesDisponibles = new Set();
+
+                paralelos.forEach(option => {
+                    if (option.dataset.carrera === carreraId) {
+                        nivelesDisponibles.add(option.dataset.nivel);
+                    }
+                });
+
+                // Filtrar opciones de nivel
+                const nivelOptions = nivelFilter.querySelectorAll('option');
+                nivelOptions.forEach(option => {
+                    if (option.value === '') return; // Mantener "Todos los niveles"
+                    option.style.display = nivelesDisponibles.has(option.value) ? '' : 'none';
+                });
+
+                // Limpiar selección de nivel y paralelo
+                nivelFilter.value = '';
+                paraleloFilter.value = '';
+                paraleloContainer.style.display = 'none';
+            }
+
+            // Función para filtrar paralelos basándose en carrera y nivel seleccionados
+            function filtrarParalelosPorCarreraYNivel(carreraId, nivelId) {
+                if (!carreraId || !nivelId) {
+                    paraleloContainer.style.display = 'none';
+                    paraleloFilter.value = '';
+                    return;
+                }
+
+                // Mostrar contenedor de paralelo
+                paraleloContainer.style.display = 'block';
+
+                // Filtrar opciones de paralelo
+                const paraleloOptions = paraleloFilter.querySelectorAll('option');
+                paraleloOptions.forEach(option => {
+                    if (option.value === '') return; // Mantener "Todos los paralelos"
+                    const optCarrera = option.dataset.carrera;
+                    const optNivel = option.dataset.nivel;
+                    const visible = optCarrera === carreraId && optNivel === nivelId;
+                    option.style.display = visible ? '' : 'none';
+                    if (!visible && option.selected) option.selected = false;
                 });
             }
-            if (carrera) carrera.addEventListener('change', filtrar);
-            if (nivel) nivel.addEventListener('change', filtrar);
-            filtrar();
+
+            // Event listeners
+            carreraFilter.addEventListener('change', function() {
+                const carreraId = this.value;
+                filtrarNivelesPorCarrera(carreraId);
+            });
+
+            nivelFilter.addEventListener('change', function() {
+                const carreraId = carreraFilter.value;
+                const nivelId = this.value;
+                filtrarParalelosPorCarreraYNivel(carreraId, nivelId);
+            });
+
+            // Inicializar estado basándose en valores existentes
+            const carreraInicial = carreraFilter.value;
+            const nivelInicial = nivelFilter.value;
+
+            if (carreraInicial) {
+                filtrarNivelesPorCarrera(carreraInicial);
+                if (nivelInicial) {
+                    filtrarParalelosPorCarreraYNivel(carreraInicial, nivelInicial);
+                }
+            }
         })();
     </script>
 @endsection
