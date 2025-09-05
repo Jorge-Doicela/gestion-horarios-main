@@ -141,7 +141,7 @@ class GeneradorHorarios
                             'hora_id' => $hora->id,
                             'paralelo_id' => $paralelo->id,
                             'periodo_academico_id' => $this->periodo->id,
-                            'semestre_id' => $this->options['semestre_id'] ?? null,
+
                             'fecha_inicio' => $this->periodo->fecha_inicio,
                             'fecha_fin' => $this->periodo->fecha_fin,
                             'modalidad' => $modalidad,
@@ -356,7 +356,7 @@ class GeneradorHorarios
             'dias' => isset($options['dias']) ? array_map('intval', (array) $options['dias']) : Dia::pluck('id')->all(),
             'hora_desde' => $options['hora_desde'] ?? null,
             'hora_hasta' => $options['hora_hasta'] ?? null,
-            'semestre_id' => isset($options['semestre_id']) ? (int) $options['semestre_id'] : null,
+
             'validar_conflictos' => array_key_exists('validar_conflictos', $options) ? (bool) $options['validar_conflictos'] : true,
             'respetar_restricciones' => array_key_exists('respetar_restricciones', $options) ? (bool) $options['respetar_restricciones'] : true,
             'balancear_carga' => array_key_exists('balancear_carga', $options) ? (bool) $options['balancear_carga'] : true,
