@@ -148,6 +148,18 @@
                     </div>
 
                     <div class="mt-8 flex flex-col sm:flex-row gap-4">
+                        <button type="button" onclick="simular()"
+                            class="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 transform hover:scale-105 shadow-lg">
+                            <span class="flex items-center justify-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                                Simular Primero
+                            </span>
+                        </button>
                         <button type="submit"
                             class="flex-1 bg-gradient-to-r from-emerald-600 to-green-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-emerald-700 hover:to-green-700 transition-all duration-200 transform hover:scale-105 shadow-lg">
                             <span class="flex items-center justify-center">
@@ -191,5 +203,28 @@
             if (carreras) carreras.addEventListener('change', filtrar);
             filtrar();
         })();
+
+        // Función para ejecutar simulación
+        function simular() {
+            const form = document.getElementById('generadorForm');
+            const formData = new FormData(form);
+
+            // Agregar el parámetro de simulación
+            formData.append('simular', '1');
+
+            // Cambiar la acción del formulario temporalmente
+            const originalAction = form.action;
+            form.action = originalAction;
+
+            // Crear un input hidden para simular
+            const simularInput = document.createElement('input');
+            simularInput.type = 'hidden';
+            simularInput.name = 'simular';
+            simularInput.value = '1';
+            form.appendChild(simularInput);
+
+            // Enviar formulario
+            form.submit();
+        }
     </script>
 @endsection

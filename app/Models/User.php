@@ -44,25 +44,16 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    /**
-     * Relación: Un usuario puede tener muchos documentos.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function documentos()
-    {
-        return $this->hasMany(Documento::class);
-    }
+    // Nota: Relaciones para futuras implementaciones
+    // public function documentos()
+    // {
+    //     return $this->hasMany(Documento::class);
+    // }
 
-    /**
-     * Relación: Auditoría o logs asociados al usuario.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function logs()
-    {
-        return $this->hasMany(Log::class);
-    }
+    // public function logs()
+    // {
+    //     return $this->hasMany(Log::class);
+    // }
 
     /**
      * Relación: Un usuario pertenece a un paralelo.

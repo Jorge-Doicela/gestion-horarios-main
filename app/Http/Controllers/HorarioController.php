@@ -463,15 +463,75 @@ class HorarioController extends Controller
 
 
 
+    // Simulación de horarios (GET para filtros)
+    public function simular(Request $request)
+    {
+        try {
+            $periodoId = $request->input('periodo_id');
+            if (!$periodoId) {
+                return redirect()->back()->withErrors(['error' => 'Período académico requerido']);
+            }
+
+            $periodo = PeriodoAcademico::findOrFail($periodoId);
+
+            $options = [
+                'modalidades' => $request->input('modalidades', ['presencial', 'virtual', 'hibrida']),
+                'carreras' => $request->input('carreras', []),
+                'niveles' => $request->input('niveles', []),
+                'paralelos' => $request->input('paralelos', []),
+                'docentes' => $request->input('docentes', []),
+                'dias' => $request->input('dias', []),
+                'hora_desde' => $request->input('hora_desde'),
+                'hora_hasta' => $request->input('hora_hasta'),
+                'validar_conflictos' => (bool) $request->input('validar_conflictos', true),
+                'respetar_restricciones' => (bool) $request->input('respetar_restricciones', true),
+                'balancear_carga' => (bool) $request->input('balancear_carga', true),
+                'priorizar_materias' => (bool) $request->input('priorizar_materias', true),
+                'simular' => true,
+            ];
+
+            $generador = new GeneradorHorarios($periodo, $options);
+            $resultado = $generador->simular();
+
+            if ($resultado['status'] === 'error') {
+                return redirect()->back()->withErrors(['error' => $resultado['mensaje'] ?? 'Error desconocido']);
+            }
+
+            // Aplicar filtros rápidos si existen
+            $fDocente = $request->query('f_docente');
+            $fParalelo = $request->query('f_paralelo');
+            if ($fDocente || $fParalelo) {
+                $resultado['propuestas'] = collect($resultado['propuestas'] ?? [])->filter(function ($p) use ($fDocente, $fParalelo) {
+                    if ($fDocente && (string)($p['docente_id'] ?? '') !== (string)$fDocente) return false;
+                    if ($fParalelo && (string)($p['paralelo_id'] ?? '') !== (string)$fParalelo) return false;
+                    return true;
+                })->values()->all();
+                $resultado['horas_propuestas'] = count($resultado['propuestas']);
+            }
+
+            return view('admin.horarios.simulacion', [
+                'periodo' => $periodo,
+                'resultado' => $resultado,
+                'options' => $options,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Excepción en simular', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return redirect()->back()->withErrors(['error' => 'Error interno: ' . $e->getMessage()]);
+        }
+    }
+
     // Generación automática de horarios
     public function generarAutomatico(Request $request)
     {
         try {
-            \Log::info('Iniciando generación automática de horarios', ['request' => $request->all()]);
+            Log::info('Iniciando generación automática de horarios', ['request' => $request->all()]);
 
             $periodoId = $request->input('periodo_id') ?? $request->input('periodo_academico_id');
             $periodo = PeriodoAcademico::findOrFail($periodoId);
-            \Log::info('Período encontrado', ['periodo' => $periodo->toArray()]);
+            Log::info('Período encontrado', ['periodo' => $periodo->toArray()]);
 
             $options = [
                 'modalidades' => $request->input('modalidades', ['presencial', 'virtual', 'hibrida']),
@@ -494,14 +554,26 @@ class HorarioController extends Controller
             $generador = new GeneradorHorarios($periodo, array_merge($options, ['simular' => $simular]));
             $resultado = $simular ? $generador->simular() : $generador->generar();
 
-            \Log::info('Resultado de la generación', ['resultado' => $resultado]);
+            Log::info('Resultado de la generación', ['resultado' => $resultado]);
 
             if ($resultado['status'] === 'error') {
-                \Log::error('Error en la generación', ['error' => $resultado['mensaje'] ?? 'Error desconocido']);
+                Log::error('Error en la generación', ['error' => $resultado['mensaje'] ?? 'Error desconocido']);
                 return redirect()->back()->withErrors(['error' => $resultado['mensaje'] ?? 'Error desconocido']);
             }
 
             if ($simular) {
+                // Aplicar filtros rápidos si existen
+                $fDocente = $request->query('f_docente');
+                $fParalelo = $request->query('f_paralelo');
+                if ($fDocente || $fParalelo) {
+                    $resultado['propuestas'] = collect($resultado['propuestas'] ?? [])->filter(function ($p) use ($fDocente, $fParalelo) {
+                        if ($fDocente && (string)($p['docente_id'] ?? '') !== (string)$fDocente) return false;
+                        if ($fParalelo && (string)($p['paralelo_id'] ?? '') !== (string)$fParalelo) return false;
+                        return true;
+                    })->values()->all();
+                    $resultado['horas_propuestas'] = count($resultado['propuestas']);
+                }
+
                 return view('admin.horarios.simulacion', [
                     'periodo' => $periodo,
                     'resultado' => $resultado,
@@ -514,7 +586,7 @@ class HorarioController extends Controller
                     . ($resultado['horarios_generados'] ?? 0) . ' horarios creados. '
                     . ($resultado['conflictos'] ?? 0) . ' conflictos.');
         } catch (\Exception $e) {
-            \Log::error('Excepción en generarAutomatico', [
+            Log::error('Excepción en generarAutomatico', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
@@ -751,7 +823,7 @@ class HorarioController extends Controller
     // Mostrar horario del estudiante
     public function horarioEstudiante(Request $request)
     {
-        $user = auth()->user();
+        $user = Auth::user();
         $paralelo = $user->paralelo;
 
         $dias = \App\Models\Dia::orderBy('id')->get();
@@ -780,7 +852,7 @@ class HorarioController extends Controller
 
     public function exportPDFEstudiante()
     {
-        $user = auth()->user();
+        $user = Auth::user();
         $paralelo = $user->paralelo;
 
         $dias = \App\Models\Dia::orderBy('id')->get();
@@ -806,7 +878,7 @@ class HorarioController extends Controller
     }
     public function exportExcelEstudiante()
     {
-        $user = auth()->user();
+        $user = Auth::user();
         $paralelo = $user->paralelo;
 
         if (!$paralelo) {

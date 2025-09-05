@@ -11,7 +11,11 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Ejecutar solo el seeder unificado
-        $this->call(RolesAndPermissionsSeeder::class);
+        // Ejecutar seeders en orden
+        $this->call([
+            RolesAndPermissionsSeeder::class,
+            DatosBasicosSeeder::class,
+            PeriodoAcademicoSeeder::class,
+        ]);
     }
 }

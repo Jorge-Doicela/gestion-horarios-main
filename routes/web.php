@@ -121,6 +121,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/horarios/generar', [HorarioController::class, 'generarAutomatico'])
         ->name('horarios.generar');
 
+    // Simulación de horarios (GET para filtros)
+    Route::get('/horarios/simular', [HorarioController::class, 'simular'])
+        ->name('horarios.simular');
+
     // Cambio de estado de un horario (opcional)
     Route::patch('/horarios/{horario}/cambiar-estado/{estado}', [HorarioController::class, 'cambiarEstado'])
         ->name('horarios.cambiarEstado');

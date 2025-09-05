@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('espacios', function (Blueprint $table) {
             $table->id()->unsigned();
             $table->string('nombre', 100);
-            $table->enum('tipo', ['aula', 'laboratorio', 'cancha', 'aula interactiva', 'otro'])->default('aula');
+            $table->enum('tipo', ['aula', 'laboratorio', 'auditorio', 'virtual', 'cancha', 'aula interactiva', 'otro'])->default('aula');
             $table->string('ubicacion', 255)->nullable();
             $table->boolean('disponible')->default(true);
             $table->enum('modalidad', ['presencial', 'virtual', 'hibrida'])->default('presencial');

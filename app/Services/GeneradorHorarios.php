@@ -62,7 +62,13 @@ class GeneradorHorarios
 
                 $horas_por_semana = (int) $this->obtenerRestriccion($materia, 'horas_por_semana', 3);
 
-                $docente = $materia->docentes->firstWhere('id', fn($id) => in_array($id, $this->options['docentes'])) ?? $materia->docentes->first();
+                $docente = null;
+                if (!empty($this->options['docentes'])) {
+                    $docente = $materia->docentes->whereIn('id', $this->options['docentes'])->first();
+                }
+                if (!$docente) {
+                    $docente = $materia->docentes->first();
+                }
                 if (!$docente) {
                     $mensaje = "Materia {$materia->nombre} no tiene docente asignado";
                     Log::warning($mensaje);
@@ -135,7 +141,7 @@ class GeneradorHorarios
                         }
 
                         if ($existe_conflicto) {
-                            Log::info("Conflicto existente para {$materia->nombre} con docente {$docente->nombre} el día {$dia->nombre}, hora {$hora->hora}");
+                            Log::info("Conflicto existente para {$materia->nombre} con docente {$docente->nombre} el día {$dia->nombre}, hora " . ($hora->hora ?? $hora->hora_inicio));
                             continue;
                         }
 
@@ -155,7 +161,7 @@ class GeneradorHorarios
                             'estado' => 'activo',
                         ]);
 
-                        Log::info("Horario asignado: {$materia->nombre} con {$docente->nombre} en {$espacio->nombre} el día {$dia->nombre}, hora {$hora->hora}");
+                        Log::info("Horario asignado: {$materia->nombre} con {$docente->nombre} en " . ($espacio ? $espacio->nombre : 'Virtual') . " el día {$dia->nombre}, hora " . ($hora->hora ?? $hora->hora_inicio));
 
                         $horas_asignadas++;
                         $cargaDocenteDia++;
@@ -223,7 +229,13 @@ class GeneradorHorarios
 
         foreach ($materias as $materia) {
             $horas_por_semana = (int) $this->obtenerRestriccion($materia, 'horas_por_semana', 3);
-            $docente = $materia->docentes->firstWhere('id', fn($id) => in_array($id, $this->options['docentes'])) ?? $materia->docentes->first();
+            $docente = null;
+            if (!empty($this->options['docentes'])) {
+                $docente = $materia->docentes->whereIn('id', $this->options['docentes'])->first();
+            }
+            if (!$docente) {
+                $docente = $materia->docentes->first();
+            }
             if (!$docente) {
                 $conflictos[] = "Materia {$materia->nombre} no tiene docente asignado";
                 continue;
@@ -289,7 +301,7 @@ class GeneradorHorarios
                         'paralelo_id' => $paralelo->id,
                         'dia' => $dia->nombre,
                         'dia_id' => $dia->id,
-                        'hora' => $hora->hora ?? ($hora->hora_inicio . ' - ' . $hora->hora_fin),
+                        'hora' => $hora->hora_inicio . ' - ' . $hora->hora_fin,
                         'hora_id' => $hora->id,
                         'espacio' => $espacio->nombre ?? 'Virtual',
                         'espacio_id' => $espacio?->id,
