@@ -270,6 +270,23 @@
                                 </a>
                             </div>
 
+                            {{-- Semestres --}}
+                            <div class="group animate-fade-in-up" style="animation-delay: 0.85s;">
+                                <a href="{{ route('semestres.index') }}"
+                                    class="block p-6 bg-gradient-to-br from-sky-500 to-sky-600 text-white rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 group-hover:scale-105">
+                                    <div class="flex flex-col items-center text-center">
+                                        <div
+                                            class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mb-3 group-hover:bg-white/30 transition-colors duration-300">
+                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                            </svg>
+                                        </div>
+                                        <h3 class="font-semibold text-sm">Semestres</h3>
+                                    </div>
+                                </a>
+                            </div>
+
                             {{-- Paralelos --}}
                             <div class="group animate-fade-in-up" style="animation-delay: 0.9s;">
                                 <a href="{{ route('paralelos.index') }}"
@@ -393,6 +410,23 @@
                                 </a>
                             </div>
 
+                            {{-- Generar Automático --}}
+                            <div class="group animate-fade-in-up" style="animation-delay: 1.5s;">
+                                <a href="{{ route('admin.horarios.generador') }}"
+                                    class="block p-6 bg-gradient-to-br from-rose-500 to-rose-600 text-white rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 group-hover:scale-105">
+                                    <div class="flex flex-col items-center text-center">
+                                        <div
+                                            class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mb-3 group-hover:bg-white/30 transition-colors duration-300">
+                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        </div>
+                                        <h3 class="font-semibold text-sm">Generar Automático</h3>
+                                    </div>
+                                </a>
+                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -426,38 +460,8 @@
                                 </div>
                             </a>
                         </div>
-                        <div class="group animate-fade-in-up" style="animation-delay: 0.4s;">
-                            <a href="{{ route('horarios.index') }}"
-                                class="block p-8 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-2xl shadow-lg hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300 group-hover:scale-105">
-                                <div class="flex flex-col items-center text-center">
-                                    <div
-                                        class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-white/30 transition-colors duration-300">
-                                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                        </svg>
-                                    </div>
-                                    <h3 class="text-lg font-semibold mb-2">Gestión de Horarios</h3>
-                                    <p class="text-blue-100 text-sm">Administra horarios académicos</p>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="group animate-fade-in-up" style="animation-delay: 0.5s;">
-                            <a href="{{ route('horarios.create') }}"
-                                class="block p-8 bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-2xl shadow-lg hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300 group-hover:scale-105">
-                                <div class="flex flex-col items-center text-center">
-                                    <div
-                                        class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-white/30 transition-colors duration-300">
-                                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                                        </svg>
-                                    </div>
-                                    <h3 class="text-lg font-semibold mb-2">Crear Horario</h3>
-                                    <p class="text-purple-100 text-sm">Registra nuevo horario</p>
-                                </div>
-                            </a>
-                        </div>
+
+
                     </div>
                 </div>
             @endrole

@@ -78,6 +78,9 @@ Route::middleware(['auth', 'role:Administrador'])
         Route::resource('roles', RoleController::class);
         Route::resource('permissions', PermissionController::class);
         Route::resource('restricciones', RestriccionController::class);
+        // Generador de horarios - pantalla para administradores
+        Route::get('/horarios/generador', [HorarioController::class, 'generador'])
+            ->name('horarios.generador');
     });
 
 // Carreras y Niveles - Administrador
@@ -130,6 +133,12 @@ Route::middleware(['auth'])->group(function () {
         ->name('horarios.export.pdf.filtrado');
     Route::get('/horarios/export/excel-filtrado', [HorarioController::class, 'exportExcelFiltrado'])
         ->name('horarios.export.excel.filtrado');
+
+    // Exportación de simulación
+    Route::get('/admin/horarios/simulacion/pdf', [HorarioController::class, 'simulacionPDF'])
+        ->name('admin.horarios.simulacion.pdf');
+    Route::get('/admin/horarios/simulacion/excel', [HorarioController::class, 'simulacionExcel'])
+        ->name('admin.horarios.simulacion.excel');
 
     // CRUD de horarios excluyendo show
     Route::resource('horarios', HorarioController::class)->except(['show']);

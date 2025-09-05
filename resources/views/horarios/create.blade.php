@@ -141,7 +141,7 @@
                         </div>
 
                         <!-- Academic Information -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
                             <!-- Docente Field -->
                             <div class="space-y-2">
                                 <label class="block text-sm font-semibold text-gray-700">
@@ -190,6 +190,28 @@
                                 @error('periodo_academico_id')
                                     <span class="text-red-600 text-sm">{{ $message }}</span>
                                 @enderror
+                            </div>
+
+                            <!-- Semestre Field -->
+                            <div class="space-y-2">
+                                <label class="block text-sm font-semibold text-gray-700">
+                                    <span class="flex items-center">
+                                        <svg class="w-4 h-4 mr-2 text-indigo-600" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        Semestre
+                                    </span>
+                                </label>
+                                <select name="semestre_id"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm">
+                                    <option value="">-- Opcional --</option>
+                                    @foreach ($semestres as $sem)
+                                        <option value="{{ $sem->id }}">{{ $sem->nombre }}
+                                            ({{ $sem->anio }}-{{ $sem->numero }})</option>
+                                    @endforeach
+                                </select>
                             </div>
                         </div>
                     </div>

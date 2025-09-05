@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Exports\HorariosExport;
 use App\Exports\HorarioEstudianteExport;
 use App\Exports\HorariosFiltradosExport;
+use App\Exports\SimulacionExport;
 
 
 
@@ -29,6 +30,20 @@ class HorarioController extends Controller
     {
         // Middleware: solo usuarios autenticados
         $this->middleware('auth');
+    }
+
+    // Vista del generador automático (solo admin via ruta)
+    public function generador(Request $request)
+    {
+        // Datos para filtros y validaciones previas
+        $periodos = PeriodoAcademico::orderBy('nombre')->get();
+        $paralelos = Paralelo::orderBy('nombre')->get();
+        $docentes = Docente::orderBy('nombre')->get();
+        $materias = Materia::orderBy('nombre')->get();
+        $horas = Hora::orderBy('hora_inicio')->get();
+        $dias = Dia::orderBy('id')->get();
+
+        return view('admin.horarios.generador', compact('periodos', 'paralelos', 'docentes', 'materias', 'horas', 'dias'));
     }
 
     // Mostrar todos los horarios con paginación, filtros y búsqueda
@@ -132,6 +147,7 @@ class HorarioController extends Controller
             'dia_id' => 'required|exists:dias,id',
             'hora_id' => 'required|exists:horas,id',
             'periodo_academico_id' => 'required|exists:periodos_academicos,id',
+            
             'fecha_inicio' => 'required|date',
             'fecha_fin' => 'required|date|after_or_equal:fecha_inicio',
             'estado' => 'required|in:activo,suspendido,finalizado',
@@ -215,6 +231,7 @@ class HorarioController extends Controller
             'dia_id' => 'required|exists:dias,id',
             'hora_id' => 'required|exists:horas,id',
             'periodo_academico_id' => 'required|exists:periodos_academicos,id',
+            
             'fecha_inicio' => 'required|date',
             'fecha_fin' => 'required|date|after_or_equal:fecha_inicio',
             'estado' => 'required|in:activo,suspendido,finalizado',
@@ -387,14 +404,38 @@ class HorarioController extends Controller
             $periodo = PeriodoAcademico::findOrFail($request->periodo_id);
             \Log::info('Período encontrado', ['periodo' => $periodo->toArray()]);
 
-            $generador = new GeneradorHorarios($periodo);
-            $resultado = $generador->generar();
+            $options = [
+                'modalidades' => $request->input('modalidades', ['presencial', 'virtual', 'hibrida']),
+                'paralelos' => $request->input('paralelos', []),
+                'docentes' => $request->input('docentes', []),
+                'dias' => $request->input('dias', []),
+                'hora_desde' => $request->input('hora_desde'),
+                'hora_hasta' => $request->input('hora_hasta'),
+                
+                'validar_conflictos' => (bool) $request->input('validar_conflictos', true),
+                'respetar_restricciones' => (bool) $request->input('respetar_restricciones', true),
+                'balancear_carga' => (bool) $request->input('balancear_carga', true),
+                'priorizar_materias' => (bool) $request->input('priorizar_materias', true),
+            ];
+
+            // Soporte de simulación (previsualización)
+            $simular = (bool) $request->input('simular', false);
+            $generador = new GeneradorHorarios($periodo, array_merge($options, ['simular' => $simular]));
+            $resultado = $simular ? $generador->simular() : $generador->generar();
 
             \Log::info('Resultado de la generación', ['resultado' => $resultado]);
 
             if ($resultado['status'] === 'error') {
                 \Log::error('Error en la generación', ['error' => $resultado['mensaje'] ?? 'Error desconocido']);
                 return redirect()->back()->withErrors(['error' => $resultado['mensaje'] ?? 'Error desconocido']);
+            }
+
+            if ($simular) {
+                return view('admin.horarios.simulacion', [
+                    'periodo' => $periodo,
+                    'resultado' => $resultado,
+                    'options' => $options,
+                ]);
             }
 
             return redirect()->route('horarios.calendario', ['periodo_id' => $periodo->id])
@@ -429,6 +470,81 @@ class HorarioController extends Controller
     {
         $periodo_id = $request->query('periodo_id') ?? PeriodoAcademico::first()->id;
         return Excel::download(new HorariosExport($periodo_id), 'horario_periodo_' . $periodo_id . '.xlsx');
+    }
+
+    // Exportación PDF de simulación
+    public function simulacionPDF(Request $request)
+    {
+        $periodo = PeriodoAcademico::findOrFail($request->periodo_id);
+        $options = [
+            'modalidades' => $request->input('modalidades', ['presencial', 'virtual', 'hibrida']),
+            'paralelos' => $request->input('paralelos', []),
+            'docentes' => $request->input('docentes', []),
+            'dias' => $request->input('dias', []),
+            'hora_desde' => $request->input('hora_desde'),
+            'hora_hasta' => $request->input('hora_hasta'),
+            'validar_conflictos' => (bool) $request->input('validar_conflictos', true),
+            'respetar_restricciones' => (bool) $request->input('respetar_restricciones', true),
+            'balancear_carga' => (bool) $request->input('balancear_carga', true),
+            'priorizar_materias' => (bool) $request->input('priorizar_materias', true),
+            'simular' => true,
+        ];
+        $generador = new GeneradorHorarios($periodo, $options);
+        $resultado = $generador->simular();
+
+        // Filtros rápidos opcionales
+        $fDocente = $request->query('f_docente');
+        $fParalelo = $request->query('f_paralelo');
+        if ($fDocente || $fParalelo) {
+            $resultado['propuestas'] = collect($resultado['propuestas'] ?? [])->filter(function ($p) use ($fDocente, $fParalelo) {
+                if ($fDocente && (string)($p['docente_id'] ?? '') !== (string)$fDocente) return false;
+                if ($fParalelo && (string)($p['paralelo_id'] ?? '') !== (string)$fParalelo) return false;
+                return true;
+            })->values()->all();
+            $resultado['horas_propuestas'] = count($resultado['propuestas']);
+        }
+
+        $pdf = Pdf::loadView('admin.horarios.simulacion_pdf', [
+            'periodo' => $periodo,
+            'resultado' => $resultado,
+            'options' => $options,
+        ]);
+        return $pdf->download('simulacion_horarios_' . $periodo->id . '.pdf');
+    }
+
+    // Exportación Excel de simulación
+    public function simulacionExcel(Request $request)
+    {
+        $periodo = PeriodoAcademico::findOrFail($request->periodo_id);
+        $options = [
+            'modalidades' => $request->input('modalidades', ['presencial', 'virtual', 'hibrida']),
+            'paralelos' => $request->input('paralelos', []),
+            'docentes' => $request->input('docentes', []),
+            'dias' => $request->input('dias', []),
+            'hora_desde' => $request->input('hora_desde'),
+            'hora_hasta' => $request->input('hora_hasta'),
+            'validar_conflictos' => (bool) $request->input('validar_conflictos', true),
+            'respetar_restricciones' => (bool) $request->input('respetar_restricciones', true),
+            'balancear_carga' => (bool) $request->input('balancear_carga', true),
+            'priorizar_materias' => (bool) $request->input('priorizar_materias', true),
+            'simular' => true,
+        ];
+        $generador = new GeneradorHorarios($periodo, $options);
+        $resultado = $generador->simular();
+
+        // Filtros rápidos opcionales
+        $fDocente = $request->query('f_docente');
+        $fParalelo = $request->query('f_paralelo');
+        if ($fDocente || $fParalelo) {
+            $resultado['propuestas'] = collect($resultado['propuestas'] ?? [])->filter(function ($p) use ($fDocente, $fParalelo) {
+                if ($fDocente && (string)($p['docente_id'] ?? '') !== (string)$fDocente) return false;
+                if ($fParalelo && (string)($p['paralelo_id'] ?? '') !== (string)$fParalelo) return false;
+                return true;
+            })->values()->all();
+            $resultado['horas_propuestas'] = count($resultado['propuestas']);
+        }
+
+        return Excel::download(new SimulacionExport($periodo, $resultado), 'simulacion_horarios_' . $periodo->id . '.xlsx');
     }
 
     // Exportar horarios filtrados a Excel

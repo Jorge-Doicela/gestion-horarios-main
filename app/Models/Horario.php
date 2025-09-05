@@ -54,6 +54,8 @@ class Horario extends Model
         return $this->belongsTo(PeriodoAcademico::class, 'periodo_academico_id');
     }
 
+    
+
     public function conflictos()
     {
         return $this->hasMany(Conflicto::class);

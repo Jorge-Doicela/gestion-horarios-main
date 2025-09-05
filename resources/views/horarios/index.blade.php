@@ -343,6 +343,30 @@
                             </select>
                         </div>
 
+                        <!-- Semestre Filter -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700">
+                                <span class="flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-indigo-600" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    Semestre
+                                </span>
+                            </label>
+                            <select name="semestre_id"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm">
+                                <option value="">Todos los semestres</option>
+                                @foreach (\App\Models\Semestre::orderByDesc('anio')->orderByDesc('numero')->get() as $sem)
+                                    <option value="{{ $sem->id }}"
+                                        {{ request('semestre_id') == $sem->id ? 'selected' : '' }}>
+                                        {{ $sem->nombre }} ({{ $sem->anio }}-{{ $sem->numero }})
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
                         <!-- View Type -->
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700">
