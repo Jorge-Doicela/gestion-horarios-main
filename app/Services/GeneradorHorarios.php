@@ -32,6 +32,9 @@ class GeneradorHorarios
         if (!empty($this->options['niveles'])) {
             $materiasQ->whereIn('nivel_id', $this->options['niveles']);
         }
+        if (!empty($this->options['carreras'])) {
+            $materiasQ->whereIn('carrera_id', $this->options['carreras']);
+        }
         $materias = $materiasQ->get();
         if ($this->options['priorizar_materias']) {
             $materias = $materias->sortByDesc(function ($m) {
@@ -198,6 +201,9 @@ class GeneradorHorarios
         if (!empty($this->options['niveles'])) {
             $materiasQ->whereIn('nivel_id', $this->options['niveles']);
         }
+        if (!empty($this->options['carreras'])) {
+            $materiasQ->whereIn('carrera_id', $this->options['carreras']);
+        }
         $materias = $materiasQ->get();
         if ($this->options['priorizar_materias']) {
             $materias = $materias->sortByDesc(function ($m) {
@@ -359,6 +365,7 @@ class GeneradorHorarios
     {
         return [
             'modalidades' => isset($options['modalidades']) ? (array) $options['modalidades'] : ['presencial', 'virtual', 'hibrida'],
+            'carreras' => isset($options['carreras']) ? array_map('intval', (array) $options['carreras']) : [],
             'niveles' => isset($options['niveles']) ? array_map('intval', (array) $options['niveles']) : [],
             'paralelos' => isset($options['paralelos']) ? array_map('intval', (array) $options['paralelos']) : [],
             'docentes' => isset($options['docentes']) ? array_map('intval', (array) $options['docentes']) : [],

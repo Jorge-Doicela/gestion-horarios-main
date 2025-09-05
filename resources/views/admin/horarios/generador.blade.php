@@ -51,6 +51,16 @@
                             <small class="text-gray-500">Si no selecciona, se considerarán todos</small>
                         </div>
                         <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Carreras (opcional)</label>
+                            <select name="carreras[]" id="carrerasSelect" multiple
+                                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500">
+                                @foreach ($carreras ?? [] as $carrera)
+                                    <option value="{{ $carrera->id }}">{{ $carrera->nombre }}</option>
+                                @endforeach
+                            </select>
+                            <small class="text-gray-500">Si no selecciona, se considerarán todas</small>
+                        </div>
+                        <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-1">Modalidades a considerar</label>
                             <div class="grid grid-cols-3 gap-2">
                                 <label class="inline-flex items-center space-x-2"><input type="checkbox"
@@ -66,7 +76,8 @@
                             <select name="paralelos[]" id="paralelosSelect" multiple
                                 class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500">
                                 @foreach ($paralelos as $paralelo)
-                                    <option value="{{ $paralelo->id }}" data-nivel="{{ $paralelo->nivel_id }}">
+                                    <option value="{{ $paralelo->id }}" data-nivel="{{ $paralelo->nivel_id }}"
+                                        data-carrera="{{ $paralelo->carrera_id }}">
                                         {{ $paralelo->nombre }}</option>
                                 @endforeach
                             </select>
@@ -155,23 +166,29 @@
         </div>
     </div>
     <script>
-        // Filtrar paralelos por niveles seleccionados
+        // Filtrar paralelos por niveles/carreras seleccionados
         (function() {
             const niveles = document.getElementById('nivelesSelect');
+            const carreras = document.getElementById('carrerasSelect');
             const paralelos = document.getElementById('paralelosSelect');
-            if (!niveles || !paralelos) return;
+            if (!paralelos) return;
 
             function filtrar() {
-                const seleccionados = Array.from(niveles.options).filter(o => o.selected).map(o => o.value);
+                const nivSel = niveles ? Array.from(niveles.options).filter(o => o.selected).map(o => o.value) : [];
+                const carSel = carreras ? Array.from(carreras.options).filter(o => o.selected).map(o => o.value) : [];
                 const options = paralelos.querySelectorAll('option');
                 options.forEach(opt => {
                     const optNivel = opt.getAttribute('data-nivel');
-                    const visible = seleccionados.length === 0 || seleccionados.includes(optNivel);
+                    const optCarrera = opt.getAttribute('data-carrera');
+                    const visNivel = nivSel.length === 0 || nivSel.includes(optNivel);
+                    const visCarr = carSel.length === 0 || carSel.includes(optCarrera);
+                    const visible = visNivel && visCarr;
                     opt.style.display = visible ? '' : 'none';
                     if (!visible && opt.selected) opt.selected = false;
                 });
             }
-            niveles.addEventListener('change', filtrar);
+            if (niveles) niveles.addEventListener('change', filtrar);
+            if (carreras) carreras.addEventListener('change', filtrar);
             filtrar();
         })();
     </script>

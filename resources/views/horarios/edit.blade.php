@@ -71,6 +71,31 @@
 
                     <!-- Basic Information Section -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Carrera Field -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700">
+                                <span class="flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-indigo-600" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 14l9-5-9-5-9 5 9 5z"></path>
+                                    </svg>
+                                    Carrera
+                                </span>
+                            </label>
+                            <select name="carrera_id" id="carreraSelect" required {{ $disabled }}
+                                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm {{ $disabled ? 'opacity-50 cursor-not-allowed' : '' }}">
+                                @foreach ($carreras as $carrera)
+                                    <option value="{{ $carrera->id }}"
+                                        {{ optional($horario->paralelo)->carrera_id == $carrera->id ? 'selected' : '' }}>
+                                        {{ $carrera->nombre }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('carrera_id')
+                                <span class="text-red-600 text-sm">{{ $message }}</span>
+                            @enderror
+                        </div>
                         <!-- Nivel Field -->
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700">
@@ -113,6 +138,7 @@
                                 class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm {{ $disabled ? 'opacity-50 cursor-not-allowed' : '' }}">
                                 @foreach ($paralelos as $paralelo)
                                     <option value="{{ $paralelo->id }}" data-nivel="{{ $paralelo->nivel_id }}"
+                                        data-carrera="{{ $paralelo->carrera_id }}"
                                         {{ $horario->paralelo_id == $paralelo->id ? 'selected' : '' }}>
                                         {{ $paralelo->nombre }}
                                     </option>
@@ -473,17 +499,21 @@
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            const carreraSelect = document.getElementById('carreraSelect');
             const nivelSelect = document.getElementById('nivelSelect');
             const paraleloSelect = document.getElementById('paraleloSelect');
-            if (!nivelSelect || !paraleloSelect) return;
+            if (!paraleloSelect) return;
 
             function filtrarParalelos() {
-                const nivelId = nivelSelect.value;
+                const nivelId = nivelSelect ? nivelSelect.value : '';
+                const carreraId = carreraSelect ? carreraSelect.value : '';
                 const options = paraleloSelect.querySelectorAll('option');
                 options.forEach((opt, idx) => {
                     if (idx === 0) return;
                     const optNivel = opt.getAttribute('data-nivel');
-                    const visible = !nivelId || optNivel === nivelId;
+                    const optCarrera = opt.getAttribute('data-carrera');
+                    const visible = (!nivelId || optNivel === nivelId) && (!carreraId || optCarrera ===
+                        carreraId);
                     opt.style.display = visible ? '' : 'none';
                     if (!visible && opt.selected) {
                         opt.selected = false;
@@ -491,7 +521,8 @@
                 });
             }
 
-            nivelSelect.addEventListener('change', filtrarParalelos);
+            if (carreraSelect) carreraSelect.addEventListener('change', filtrarParalelos);
+            if (nivelSelect) nivelSelect.addEventListener('change', filtrarParalelos);
             filtrarParalelos();
         });
     </script>

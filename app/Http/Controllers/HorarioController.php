@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Horario;
 use App\Models\Paralelo;
 use App\Models\Nivel;
+use App\Models\Carrera;
 use App\Models\Materia;
 use App\Models\Docente;
 use App\Models\Espacio;
@@ -40,12 +41,13 @@ class HorarioController extends Controller
         $periodos = PeriodoAcademico::orderBy('nombre')->get();
         $paralelos = Paralelo::orderBy('nombre')->get();
         $niveles = \App\Models\Nivel::orderBy('nombre')->get();
+        $carreras = Carrera::orderBy('nombre')->get();
         $docentes = Docente::orderBy('nombre')->get();
         $materias = Materia::orderBy('nombre')->get();
         $horas = Hora::orderBy('hora_inicio')->get();
         $dias = Dia::orderBy('id')->get();
 
-        return view('admin.horarios.generador', compact('periodos', 'paralelos', 'niveles', 'docentes', 'materias', 'horas', 'dias'));
+        return view('admin.horarios.generador', compact('periodos', 'paralelos', 'niveles', 'carreras', 'docentes', 'materias', 'horas', 'dias'));
     }
 
     // Mostrar todos los horarios con paginación, filtros y búsqueda
@@ -78,6 +80,13 @@ class HorarioController extends Controller
             $nivelId = (int) $request->nivel_id;
             $query->whereHas('paralelo', function ($q) use ($nivelId) {
                 $q->where('nivel_id', $nivelId);
+            });
+        }
+
+        if ($request->filled('carrera_id')) {
+            $carreraId = (int) $request->carrera_id;
+            $query->whereHas('paralelo', function ($q) use ($carreraId) {
+                $q->where('carrera_id', $carreraId);
             });
         }
 
@@ -121,6 +130,7 @@ class HorarioController extends Controller
         $docentes = Docente::orderBy('nombre')->get();
         $paralelos = Paralelo::orderBy('nombre')->get();
         $niveles = Nivel::orderBy('nombre')->get();
+        $carreras = Carrera::orderBy('nombre')->get();
 
         return view('horarios.index', compact(
             'horarios',
@@ -129,7 +139,8 @@ class HorarioController extends Controller
             'periodos',
             'docentes',
             'paralelos',
-            'niveles'
+            'niveles',
+            'carreras'
         ));
     }
 
@@ -139,6 +150,7 @@ class HorarioController extends Controller
         return view('horarios.create', [
             'paralelos' => Paralelo::all(),
             'niveles' => Nivel::orderBy('nombre')->get(),
+            'carreras' => Carrera::orderBy('nombre')->get(),
             'materias' => Materia::all(),
             'docentes' => Docente::all(),
             'espacios' => Espacio::all(),
@@ -152,6 +164,7 @@ class HorarioController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
+            'carrera_id' => 'required|exists:carreras,id',
             'nivel_id' => 'required|exists:niveles,id',
             'paralelo_id' => 'required|exists:paralelos,id',
             'materia_id' => 'required|exists:materias,id',
@@ -167,6 +180,8 @@ class HorarioController extends Controller
             'modalidad' => 'required|in:presencial,virtual,hibrida',
             'observaciones' => 'nullable|string|max:500',
         ], [
+            'carrera_id.required' => 'La carrera es obligatoria.',
+            'carrera_id.exists' => 'La carrera seleccionada no existe.',
             'nivel_id.required' => 'El nivel es obligatorio.',
             'nivel_id.exists' => 'El nivel seleccionado no existe.',
             'paralelo_id.required' => 'El paralelo es obligatorio.',
@@ -195,12 +210,19 @@ class HorarioController extends Controller
             'observaciones.max' => 'Las observaciones no pueden exceder los 500 caracteres.',
         ]);
 
-        // Validar relación paralelo pertenece a nivel
-        $pertenece = Paralelo::where('id', $validated['paralelo_id'])
-            ->where('nivel_id', $validated['nivel_id'])
+        // Validar relaciones: nivel pertenece a carrera y paralelo pertenece a nivel y carrera
+        $nivelPertenece = Nivel::where('id', $validated['nivel_id'])
+            ->whereHas('materias', function ($q) use ($validated) {
+                // Asumimos que Niveles no tiene fk directa a carrera; validamos por paralelos
+            })
             ->exists();
-        if (!$pertenece) {
-            return back()->withInput()->withErrors(['paralelo_id' => 'El paralelo no pertenece al nivel seleccionado.']);
+        // Validación directa por Paralelo
+        $paraleloOk = Paralelo::where('id', $validated['paralelo_id'])
+            ->where('nivel_id', $validated['nivel_id'])
+            ->where('carrera_id', $validated['carrera_id'])
+            ->exists();
+        if (!$paraleloOk) {
+            return back()->withInput()->withErrors(['paralelo_id' => 'El paralelo no pertenece al nivel y carrera seleccionados.']);
         }
 
         if ($validated['estado'] === 'activo') {
@@ -216,7 +238,7 @@ class HorarioController extends Controller
         }
 
         $data = $validated;
-        unset($data['nivel_id']);
+        unset($data['nivel_id'], $data['carrera_id']);
         Horario::create($data);
 
         return redirect()->route('horarios.index')->with('success', 'Horario creado correctamente.');
@@ -233,6 +255,7 @@ class HorarioController extends Controller
             'horario' => $horario,
             'paralelos' => Paralelo::all(),
             'niveles' => Nivel::orderBy('nombre')->get(),
+            'carreras' => Carrera::orderBy('nombre')->get(),
             'materias' => Materia::all(),
             'docentes' => Docente::all(),
             'espacios' => Espacio::all(),
@@ -250,6 +273,7 @@ class HorarioController extends Controller
         }
 
         $validated = $request->validate([
+            'carrera_id' => 'required|exists:carreras,id',
             'nivel_id' => 'required|exists:niveles,id',
             'paralelo_id' => 'required|exists:paralelos,id',
             'materia_id' => 'required|exists:materias,id',
@@ -266,12 +290,13 @@ class HorarioController extends Controller
             'observaciones' => 'nullable|string|max:500',
         ]);
 
-        // Validar relación paralelo pertenece a nivel
-        $pertenece = Paralelo::where('id', $validated['paralelo_id'])
+        // Validar relaciones: paralelo pertenece a nivel y carrera
+        $paraleloOk = Paralelo::where('id', $validated['paralelo_id'])
             ->where('nivel_id', $validated['nivel_id'])
+            ->where('carrera_id', $validated['carrera_id'])
             ->exists();
-        if (!$pertenece) {
-            return back()->withInput()->withErrors(['paralelo_id' => 'El paralelo no pertenece al nivel seleccionado.']);
+        if (!$paraleloOk) {
+            return back()->withInput()->withErrors(['paralelo_id' => 'El paralelo no pertenece al nivel y carrera seleccionados.']);
         }
 
         if ($validated['estado'] === 'activo') {
@@ -287,7 +312,7 @@ class HorarioController extends Controller
         }
 
         $data = $validated;
-        unset($data['nivel_id']);
+        unset($data['nivel_id'], $data['carrera_id']);
         $horario->update($data);
 
         return redirect()->route('horarios.index')->with('success', 'Horario actualizado correctamente.');
@@ -324,15 +349,9 @@ class HorarioController extends Controller
     {
         $conflictos = [];
 
-        $hora = Hora::find($data['hora_id']);
-        $horaInicio = $hora->hora_inicio;
-        $horaFin = $hora->hora_fin;
-
-        $solapamiento = function ($query) use ($horaInicio, $horaFin, $idHorarioActual) {
-            $query->where(function ($q) use ($horaInicio, $horaFin) {
-                $q->where('hora_inicio', '<', $horaFin)
-                    ->where('hora_fin', '>', $horaInicio);
-            });
+        $solapamiento = function ($query) use ($data, $idHorarioActual) {
+            // Consideramos solapamiento cuando coinciden misma franja (hora_id)
+            $query->where('hora_id', $data['hora_id']);
 
             if ($idHorarioActual) {
                 $query->where('id', '!=', $idHorarioActual);
@@ -444,6 +463,7 @@ class HorarioController extends Controller
 
             $options = [
                 'modalidades' => $request->input('modalidades', ['presencial', 'virtual', 'hibrida']),
+                'carreras' => $request->input('carreras', []),
                 'niveles' => $request->input('niveles', []),
                 'paralelos' => $request->input('paralelos', []),
                 'docentes' => $request->input('docentes', []),
@@ -619,6 +639,13 @@ class HorarioController extends Controller
             });
         }
 
+        if ($request->filled('carrera_id')) {
+            $carreraId = (int) $request->carrera_id;
+            $query->whereHas('paralelo', function ($q) use ($carreraId) {
+                $q->where('carrera_id', $carreraId);
+            });
+        }
+
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -673,6 +700,13 @@ class HorarioController extends Controller
             $nivelId = (int) $request->nivel_id;
             $query->whereHas('paralelo', function ($q) use ($nivelId) {
                 $q->where('nivel_id', $nivelId);
+            });
+        }
+
+        if ($request->filled('carrera_id')) {
+            $carreraId = (int) $request->carrera_id;
+            $query->whereHas('paralelo', function ($q) use ($carreraId) {
+                $q->where('carrera_id', $carreraId);
             });
         }
 

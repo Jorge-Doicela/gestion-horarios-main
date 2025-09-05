@@ -218,6 +218,30 @@
                                 class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm">
                         </div>
 
+                        <!-- Carrera Filter -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700">
+                                <span class="flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-indigo-600" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 14l9-5-9-5-9 5 9 5z"></path>
+                                    </svg>
+                                    Carrera
+                                </span>
+                            </label>
+                            <select name="carrera_id" id="carreraFilter"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm">
+                                <option value="">Todas las carreras</option>
+                                @foreach ($carreras as $carrera)
+                                    <option value="{{ $carrera->id }}"
+                                        {{ request('carrera_id') == $carrera->id ? 'selected' : '' }}>
+                                        {{ $carrera->nombre }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
                         <!-- Nivel Filter -->
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700">
@@ -260,6 +284,7 @@
                                 <option value="">Todos los paralelos</option>
                                 @foreach ($paralelos as $paralelo)
                                     <option value="{{ $paralelo->id }}" data-nivel="{{ $paralelo->nivel_id }}"
+                                        data-carrera="{{ $paralelo->carrera_id }}"
                                         {{ request('paralelo_id') == $paralelo->id ? 'selected' : '' }}>
                                         {{ $paralelo->nombre }}
                                     </option>
@@ -485,24 +510,29 @@
             document.getElementById('filterForm').submit();
         });
 
-        // Dependencia Nivel -> Paralelo en filtros
+        // Dependencia Carrera/Nivel -> Paralelo en filtros
         (function() {
+            const carrera = document.getElementById('carreraFilter');
             const nivel = document.getElementById('nivelFilter');
             const paralelo = document.getElementById('paraleloFilter');
-            if (!nivel || !paralelo) return;
+            if (!paralelo) return;
 
             function filtrar() {
-                const nivelId = nivel.value;
+                const nivelId = nivel ? nivel.value : '';
+                const carreraId = carrera ? carrera.value : '';
                 const options = paralelo.querySelectorAll('option');
                 options.forEach((opt, idx) => {
                     if (idx === 0) return;
                     const optNivel = opt.getAttribute('data-nivel');
-                    const visible = !nivelId || optNivel === nivelId;
+                    const optCarrera = opt.getAttribute('data-carrera');
+                    const visible = (!nivelId || optNivel === nivelId) && (!carreraId || optCarrera ===
+                        carreraId);
                     opt.style.display = visible ? '' : 'none';
                     if (!visible && opt.selected) opt.selected = false;
                 });
             }
-            nivel.addEventListener('change', filtrar);
+            if (carrera) carrera.addEventListener('change', filtrar);
+            if (nivel) nivel.addEventListener('change', filtrar);
             filtrar();
         })();
     </script>
