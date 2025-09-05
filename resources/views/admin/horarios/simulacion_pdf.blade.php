@@ -6,57 +6,87 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simulación de Generación</title>
     <style>
+        @page {
+            margin: 15mm;
+            size: A4;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: DejaVu Sans, sans-serif;
-            font-size: 12px;
-            color: #111827;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 11px;
+            color: #2c3e50;
+            background: white;
+            line-height: 1.5;
         }
 
         .header {
-            margin-bottom: 12px;
+            text-align: center;
+            margin-bottom: 25px;
+            padding: 20px 0;
+            border-bottom: 2px solid #34495e;
         }
 
         .title {
-            font-size: 18px;
+            font-size: 22px;
             font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
         }
 
         .muted {
-            color: #6B7280;
+            color: #7f8c8d;
+            font-size: 14px;
+            font-weight: 400;
         }
 
         .grid {
             display: flex;
-            gap: 8px;
-            margin: 12px 0;
+            gap: 10px;
+            margin: 20px 0;
         }
 
         .card {
             flex: 1;
-            border: 1px solid #E5E7EB;
-            border-radius: 8px;
-            padding: 10px;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 15px;
+            text-align: center;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
         }
 
         th,
         td {
-            border: 1px solid #E5E7EB;
-            padding: 6px 8px;
+            border-bottom: 1px solid #e9ecef;
+            padding: 10px 8px;
+            text-align: left;
         }
 
         thead th {
-            background: #F3F4F6;
-            font-size: 11px;
+            background: #34495e;
+            color: white;
+            font-size: 10px;
             text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            border: none;
         }
 
         tbody td {
-            font-size: 12px;
+            font-size: 10px;
         }
 
         .right {

@@ -7,117 +7,120 @@
     <title>Reporte de Horarios Académicos</title>
     <style>
         @page {
-            margin: 20px;
+            margin: 15mm;
             size: A4;
         }
 
-        body {
-            font-family: 'Arial', sans-serif;
+        * {
             margin: 0;
             padding: 0;
-            font-size: 10px;
-            line-height: 1.4;
-            color: #333;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 11px;
+            line-height: 1.5;
+            color: #2c3e50;
+            background: white;
         }
 
         .header {
             text-align: center;
-            margin-bottom: 25px;
-            padding: 15px 0;
-            border-bottom: 3px solid #2E5BBA;
-            position: relative;
+            margin-bottom: 30px;
+            padding: 20px 0;
+            border-bottom: 2px solid #34495e;
         }
 
         .logo {
-            width: 80px;
+            width: 60px;
             height: auto;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
         }
 
         .title {
-            font-size: 20px;
-            font-weight: bold;
-            color: #2E5BBA;
-            margin-bottom: 5px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            font-size: 24px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
         }
 
         .subtitle {
             font-size: 14px;
-            color: #666;
-            margin-bottom: 8px;
-            font-weight: 500;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+            font-weight: 400;
         }
 
         .date {
-            font-size: 11px;
-            color: #888;
-            font-style: italic;
+            font-size: 10px;
+            color: #95a5a6;
+            font-weight: 300;
         }
 
         .stats-container {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
+            margin-bottom: 25px;
+            gap: 10px;
         }
 
         .stats-box {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            padding: 12px;
-            margin: 5px;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 15px;
             flex: 1;
-            min-width: 150px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            min-width: 120px;
         }
 
         .stats-title {
-            font-size: 11px;
-            font-weight: bold;
-            color: #2E5BBA;
-            margin-bottom: 5px;
+            font-size: 10px;
+            font-weight: 600;
+            color: #6c757d;
+            margin-bottom: 8px;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .stats-value {
-            font-size: 16px;
-            font-weight: bold;
-            color: #333;
+            font-size: 18px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 4px;
         }
 
         .stats-subtitle {
             font-size: 9px;
-            color: #666;
-            margin-top: 2px;
+            color: #6c757d;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 15px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+            background: white;
         }
 
         th {
-            background: linear-gradient(135deg, #2E5BBA 0%, #1e4ba8 100%);
+            background: #34495e;
             color: white;
-            font-weight: bold;
+            font-weight: 600;
             text-align: center;
-            padding: 10px 6px;
-            font-size: 9px;
+            padding: 12px 8px;
+            font-size: 10px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            border: 1px solid #1e4ba8;
+            border: none;
         }
 
         td {
-            padding: 8px 6px;
+            padding: 10px 8px;
             text-align: left;
-            font-size: 9px;
-            border: 1px solid #dee2e6;
+            font-size: 10px;
+            border-bottom: 1px solid #e9ecef;
             vertical-align: middle;
         }
 
@@ -125,34 +128,23 @@
             background-color: #f8f9fa;
         }
 
+        tr:hover {
+            background-color: #e3f2fd;
+        }
+
         .modalidad-presencial {
-            background-color: #d4edda !important;
-            border-left: 4px solid #28a745;
+            background-color: #e8f5e8 !important;
+            border-left: 3px solid #27ae60;
         }
 
         .modalidad-virtual {
-            background-color: #d1ecf1 !important;
-            border-left: 4px solid #17a2b8;
+            background-color: #e3f2fd !important;
+            border-left: 3px solid #3498db;
         }
 
         .modalidad-hibrida {
-            background-color: #fff3cd !important;
-            border-left: 4px solid #ffc107;
-        }
-
-        .estado-activo {
-            color: #155724;
-            font-weight: bold;
-        }
-
-        .estado-suspendido {
-            color: #856404;
-            font-weight: bold;
-        }
-
-        .estado-finalizado {
-            color: #721c24;
-            font-weight: bold;
+            background-color: #fff8e1 !important;
+            border-left: 3px solid #f39c12;
         }
 
         .center-text {
@@ -160,55 +152,79 @@
         }
 
         .footer {
-            margin-top: 25px;
+            margin-top: 30px;
             text-align: center;
             font-size: 9px;
-            color: #666;
-            border-top: 1px solid #dee2e6;
+            color: #6c757d;
+            border-top: 1px solid #e9ecef;
             padding-top: 15px;
         }
 
         .footer p {
-            margin: 3px 0;
+            margin: 2px 0;
         }
 
         .page-number {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
-            font-size: 8px;
-            color: #999;
+            bottom: 15mm;
+            right: 15mm;
+            font-size: 9px;
+            color: #95a5a6;
         }
 
         .highlight {
-            background-color: #fff3cd;
-            padding: 2px 4px;
-            border-radius: 3px;
-            font-weight: bold;
+            background-color: #ecf0f1;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 9px;
         }
 
         .status-badge {
             display: inline-block;
-            padding: 2px 6px;
-            border-radius: 12px;
-            font-size: 8px;
-            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: 600;
             text-transform: uppercase;
         }
 
         .status-activo {
-            background-color: #d4edda;
-            color: #155724;
+            background-color: #d5f4e6;
+            color: #27ae60;
         }
 
         .status-suspendido {
-            background-color: #fff3cd;
-            color: #856404;
+            background-color: #fef5e7;
+            color: #f39c12;
         }
 
         .status-finalizado {
-            background-color: #f8d7da;
-            color: #721c24;
+            background-color: #fadbd8;
+            color: #e74c3c;
+        }
+
+        .modalidad-badge {
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .modalidad-presencial-badge {
+            background-color: #d5f4e6;
+            color: #27ae60;
+        }
+
+        .modalidad-virtual-badge {
+            background-color: #e3f2fd;
+            color: #3498db;
+        }
+
+        .modalidad-hibrida-badge {
+            background-color: #fff8e1;
+            color: #f39c12;
         }
     </style>
 </head>
@@ -224,45 +240,33 @@
 
     <div class="stats-container">
         <div class="stats-box">
-            <div class="stats-title">Total Horarios</div>
+            <div class="stats-title">Total</div>
             <div class="stats-value">{{ $horarios->count() }}</div>
-            <div class="stats-subtitle">Registros encontrados</div>
+            <div class="stats-subtitle">Horarios</div>
         </div>
 
         <div class="stats-box">
             <div class="stats-title">Activos</div>
             <div class="stats-value">{{ $horarios->where('estado', 'activo')->count() }}</div>
-            <div class="stats-subtitle">En funcionamiento</div>
-        </div>
-
-        <div class="stats-box">
-            <div class="stats-title">Suspendidos</div>
-            <div class="stats-value">{{ $horarios->where('estado', 'suspendido')->count() }}</div>
-            <div class="stats-subtitle">Temporalmente pausados</div>
-        </div>
-
-        <div class="stats-box">
-            <div class="stats-title">Finalizados</div>
-            <div class="stats-value">{{ $horarios->where('estado', 'finalizado')->count() }}</div>
-            <div class="stats-subtitle">Completados</div>
+            <div class="stats-subtitle">En curso</div>
         </div>
 
         <div class="stats-box">
             <div class="stats-title">Presencial</div>
             <div class="stats-value">{{ $horarios->where('modalidad', 'presencial')->count() }}</div>
-            <div class="stats-subtitle">Modalidad tradicional</div>
+            <div class="stats-subtitle">Modalidad</div>
         </div>
 
         <div class="stats-box">
             <div class="stats-title">Virtual</div>
             <div class="stats-value">{{ $horarios->where('modalidad', 'virtual')->count() }}</div>
-            <div class="stats-subtitle">En línea</div>
+            <div class="stats-subtitle">Modalidad</div>
         </div>
 
         <div class="stats-box">
             <div class="stats-title">Híbrida</div>
             <div class="stats-value">{{ $horarios->where('modalidad', 'hibrida')->count() }}</div>
-            <div class="stats-subtitle">Combinada</div>
+            <div class="stats-subtitle">Modalidad</div>
         </div>
     </div>
 
@@ -294,7 +298,9 @@
                     </td>
                     <td class="center-text">{{ $horario->periodo->nombre }}</td>
                     <td class="center-text">
-                        <span class="highlight">{{ ucfirst($horario->modalidad) }}</span>
+                        <span class="modalidad-badge modalidad-{{ $horario->modalidad }}-badge">
+                            {{ ucfirst($horario->modalidad) }}
+                        </span>
                     </td>
                     <td class="center-text">
                         <span class="status-badge status-{{ $horario->estado }}">
@@ -309,10 +315,8 @@
     </table>
 
     <div class="footer">
-        <p><strong>Este reporte fue generado automáticamente por el sistema de gestión de horarios académicos.</strong>
-        </p>
+        <p><strong>Sistema de Gestión de Horarios Académicos</strong></p>
         <p>Instituto Superior Tecnológico Pedro Mayor Traversari - {{ now()->year }}</p>
-        <p>Para consultas o soporte técnico, contacte al departamento de sistemas.</p>
     </div>
 
     <div class="page-number">

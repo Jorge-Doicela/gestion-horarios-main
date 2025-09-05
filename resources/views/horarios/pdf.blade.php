@@ -6,218 +6,219 @@
     <title>Horario Académico Completo</title>
     <style>
         @page {
-            margin: 15px;
+            margin: 15mm;
             size: A4 landscape;
         }
 
-        body {
-            font-family: 'Arial', sans-serif;
-            font-size: 10px;
+        * {
             margin: 0;
             padding: 0;
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-            line-height: 1.4;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 11px;
+            margin: 0;
+            padding: 0;
+            background: white;
+            line-height: 1.5;
+            color: #2c3e50;
         }
 
         .header {
             text-align: center;
-            margin-bottom: 20px;
-            padding: 15px 0;
-            background: linear-gradient(135deg, #2E5BBA 0%, #1e4ba8 100%);
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            position: relative;
+            margin-bottom: 25px;
+            padding: 20px 0;
+            border-bottom: 2px solid #34495e;
         }
 
         .logo {
-            width: 70px;
+            width: 60px;
             height: auto;
-            margin-bottom: 8px;
-            filter: brightness(0) invert(1);
+            margin-bottom: 15px;
         }
 
         .title {
-            font-size: 18px;
-            font-weight: bold;
-            color: white;
-            margin-bottom: 5px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            font-size: 22px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
         }
 
         .subtitle {
-            font-size: 12px;
-            color: #e0e7ff;
-            margin-bottom: 5px;
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+            font-weight: 400;
         }
 
         .date {
             font-size: 10px;
-            color: #c7d2fe;
-            font-style: italic;
+            color: #95a5a6;
+            font-weight: 300;
         }
 
         .stats-container {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-            gap: 8px;
+            margin-bottom: 20px;
+            gap: 10px;
         }
 
         .stats-box {
-            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-            border: 1px solid #e2e8f0;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
             border-radius: 6px;
-            padding: 8px;
+            padding: 15px;
             flex: 1;
+            text-align: center;
             min-width: 120px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
 
         .stats-title {
-            font-size: 9px;
-            font-weight: bold;
-            color: #2E5BBA;
-            margin-bottom: 3px;
+            font-size: 10px;
+            font-weight: 600;
+            color: #6c757d;
+            margin-bottom: 8px;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .stats-value {
-            font-size: 14px;
-            font-weight: bold;
-            color: #1f2937;
+            font-size: 16px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 4px;
         }
 
         .stats-subtitle {
-            font-size: 8px;
-            color: #6b7280;
-            margin-top: 2px;
+            font-size: 9px;
+            color: #6c757d;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
             background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
         }
 
         th {
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-            color: #1f2937;
-            font-weight: bold;
+            background: #34495e;
+            color: white;
+            font-weight: 600;
             text-align: center;
-            padding: 10px 6px;
-            font-size: 9px;
+            padding: 12px 8px;
+            font-size: 10px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            border: 1px solid #d1d5db;
+            border: none;
         }
 
         td {
-            padding: 6px;
+            padding: 10px 8px;
             text-align: center;
             vertical-align: middle;
-            font-size: 9px;
-            border: 1px solid #e5e7eb;
+            font-size: 10px;
+            border-bottom: 1px solid #e9ecef;
         }
 
         .time-cell {
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-            color: #1f2937;
-            font-weight: bold;
-            font-size: 9px;
+            background: #ecf0f1;
+            color: #2c3e50;
+            font-weight: 600;
+            font-size: 10px;
             text-align: center;
             vertical-align: middle;
-            border: 1px solid #d1d5db;
+            border: 1px solid #bdc3c7;
         }
 
         .presencial {
-            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
-            border: 2px solid #22c55e;
+            background-color: #e8f5e8;
+            border: 2px solid #27ae60;
             border-radius: 6px;
-            padding: 6px;
+            padding: 8px;
             margin: 2px;
         }
 
         .virtual {
-            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-            border: 2px solid #3b82f6;
+            background-color: #e3f2fd;
+            border: 2px solid #3498db;
             border-radius: 6px;
-            padding: 6px;
+            padding: 8px;
             margin: 2px;
         }
 
         .hibrida {
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-            border: 2px solid #f59e0b;
+            background-color: #fff8e1;
+            border: 2px solid #f39c12;
             border-radius: 6px;
-            padding: 6px;
+            padding: 8px;
             margin: 2px;
         }
 
         .suspendido {
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-            border: 2px solid #f59e0b;
+            background-color: #fff3e0;
+            border: 2px solid #f39c12;
             border-radius: 6px;
-            padding: 6px;
+            padding: 8px;
             margin: 2px;
             opacity: 0.8;
         }
 
         .finalizado {
-            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-            border: 2px solid #9ca3af;
+            background-color: #f5f5f5;
+            border: 2px solid #95a5a6;
             border-radius: 6px;
-            padding: 6px;
+            padding: 8px;
             margin: 2px;
-            color: #6b7280;
+            color: #7f8c8d;
             opacity: 0.7;
         }
 
         .materia {
-            font-weight: bold;
-            font-size: 10px;
-            margin-bottom: 3px;
-            color: #1f2937;
+            font-weight: 600;
+            font-size: 11px;
+            margin-bottom: 4px;
+            color: #2c3e50;
             line-height: 1.2;
         }
 
         .detalle {
-            font-size: 8px;
-            color: #4b5563;
-            line-height: 1.2;
+            font-size: 9px;
+            color: #7f8c8d;
+            line-height: 1.3;
         }
 
         .detalle strong {
-            color: #374151;
+            color: #34495e;
         }
 
         .conflict {
-            color: #dc2626;
-            font-weight: bold;
+            color: #e74c3c;
+            font-weight: 600;
             font-size: 8px;
-            margin-top: 3px;
-            background: rgba(220, 38, 38, 0.1);
-            padding: 2px 4px;
-            border-radius: 3px;
+            margin-top: 4px;
+            background: #fadbd8;
+            padding: 3px 6px;
+            border-radius: 4px;
         }
 
         .empty-cell {
-            color: #9ca3af;
+            color: #bdc3c7;
             font-style: italic;
-            font-size: 9px;
+            font-size: 10px;
         }
 
         .footer {
-            margin-top: 15px;
+            margin-top: 25px;
             text-align: center;
-            font-size: 8px;
-            color: #6b7280;
-            border-top: 1px solid #e5e7eb;
-            padding-top: 10px;
+            font-size: 9px;
+            color: #6c757d;
+            border-top: 1px solid #e9ecef;
+            padding-top: 15px;
         }
 
         .footer p {
@@ -226,47 +227,48 @@
 
         .page-number {
             position: fixed;
-            bottom: 10px;
-            right: 15px;
-            font-size: 8px;
-            color: #9ca3af;
+            bottom: 15mm;
+            right: 15mm;
+            font-size: 9px;
+            color: #95a5a6;
         }
 
         .legend {
-            margin-bottom: 10px;
-            padding: 8px;
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            margin-bottom: 15px;
+            padding: 12px;
+            background: #f8f9fa;
             border-radius: 6px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid #e9ecef;
         }
 
         .legend-title {
-            font-size: 9px;
-            font-weight: bold;
-            color: #2E5BBA;
-            margin-bottom: 5px;
+            font-size: 10px;
+            font-weight: 600;
+            color: #34495e;
+            margin-bottom: 8px;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .legend-items {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 15px;
         }
 
         .legend-item {
             display: flex;
             align-items: center;
-            font-size: 8px;
-            color: #4b5563;
+            font-size: 9px;
+            color: #6c757d;
         }
 
         .legend-color {
-            width: 12px;
-            height: 12px;
-            border-radius: 3px;
-            margin-right: 5px;
-            border: 1px solid #d1d5db;
+            width: 14px;
+            height: 14px;
+            border-radius: 4px;
+            margin-right: 6px;
+            border: 1px solid #bdc3c7;
         }
     </style>
 </head>
@@ -282,33 +284,33 @@
 
     <div class="stats-container">
         <div class="stats-box">
-            <div class="stats-title">Total Horarios</div>
+            <div class="stats-title">Total</div>
             <div class="stats-value">{{ $horarios->count() }}</div>
-            <div class="stats-subtitle">Registros totales</div>
+            <div class="stats-subtitle">Horarios</div>
         </div>
 
         <div class="stats-box">
             <div class="stats-title">Activos</div>
             <div class="stats-value">{{ $horarios->where('estado', 'activo')->count() }}</div>
-            <div class="stats-subtitle">En funcionamiento</div>
+            <div class="stats-subtitle">En curso</div>
         </div>
 
         <div class="stats-box">
             <div class="stats-title">Presencial</div>
             <div class="stats-value">{{ $horarios->where('modalidad', 'presencial')->count() }}</div>
-            <div class="stats-subtitle">Modalidad tradicional</div>
+            <div class="stats-subtitle">Modalidad</div>
         </div>
 
         <div class="stats-box">
             <div class="stats-title">Virtual</div>
             <div class="stats-value">{{ $horarios->where('modalidad', 'virtual')->count() }}</div>
-            <div class="stats-subtitle">En línea</div>
+            <div class="stats-subtitle">Modalidad</div>
         </div>
 
         <div class="stats-box">
             <div class="stats-title">Híbrida</div>
             <div class="stats-value">{{ $horarios->where('modalidad', 'hibrida')->count() }}</div>
-            <div class="stats-subtitle">Combinada</div>
+            <div class="stats-subtitle">Modalidad</div>
         </div>
     </div>
 
@@ -316,29 +318,23 @@
         <div class="legend-title">Leyenda de Modalidades</div>
         <div class="legend-items">
             <div class="legend-item">
-                <div class="legend-color"
-                    style="background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); border-color: #22c55e;"></div>
+                <div class="legend-color" style="background-color: #e8f5e8; border-color: #27ae60;"></div>
                 Presencial
             </div>
             <div class="legend-item">
-                <div class="legend-color"
-                    style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border-color: #3b82f6;"></div>
+                <div class="legend-color" style="background-color: #e3f2fd; border-color: #3498db;"></div>
                 Virtual
             </div>
             <div class="legend-item">
-                <div class="legend-color"
-                    style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-color: #f59e0b;"></div>
+                <div class="legend-color" style="background-color: #fff8e1; border-color: #f39c12;"></div>
                 Híbrida
             </div>
             <div class="legend-item">
-                <div class="legend-color"
-                    style="background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%); border-color: #9ca3af;"></div>
+                <div class="legend-color" style="background-color: #f5f5f5; border-color: #95a5a6;"></div>
                 Finalizado
             </div>
             <div class="legend-item">
-                <div class="legend-color"
-                    style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-color: #f59e0b; opacity: 0.8;">
-                </div>
+                <div class="legend-color" style="background-color: #fff3e0; border-color: #f39c12;"></div>
                 Suspendido
             </div>
         </div>
@@ -409,10 +405,8 @@
     </table>
 
     <div class="footer">
-        <p><strong>Este reporte fue generado automáticamente por el sistema de gestión de horarios académicos.</strong>
-        </p>
+        <p><strong>Sistema de Gestión de Horarios Académicos</strong></p>
         <p>Instituto Superior Tecnológico Pedro Mayor Traversari - {{ now()->year }}</p>
-        <p>Para consultas o soporte técnico, contacte al departamento de sistemas.</p>
     </div>
 
     <div class="page-number">

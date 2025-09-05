@@ -91,8 +91,8 @@ class HorariosFiltradosExport implements FromCollection, WithHeadings, WithStyle
                 $sheet->getStyle('A1')->applyFromArray([
                     'font' => [
                         'bold' => true,
-                        'size' => 16,
-                        'color' => ['rgb' => '2E5BBA']
+                        'size' => 18,
+                        'color' => ['rgb' => '2c3e50']
                     ],
                     'alignment' => [
                         'horizontal' => 'center',
@@ -105,8 +105,8 @@ class HorariosFiltradosExport implements FromCollection, WithHeadings, WithStyle
                 $sheet->setCellValue('A2', 'Instituto Superior Tecnológico Pedro Mayor Traversari');
                 $sheet->getStyle('A2')->applyFromArray([
                     'font' => [
-                        'size' => 12,
-                        'color' => ['rgb' => '666666']
+                        'size' => 14,
+                        'color' => ['rgb' => '7f8c8d']
                     ],
                     'alignment' => [
                         'horizontal' => 'center',
@@ -120,7 +120,7 @@ class HorariosFiltradosExport implements FromCollection, WithHeadings, WithStyle
                 $sheet->getStyle('A3')->applyFromArray([
                     'font' => [
                         'size' => 10,
-                        'color' => ['rgb' => '888888']
+                        'color' => ['rgb' => '95a5a6']
                     ],
                     'alignment' => [
                         'horizontal' => 'center',
@@ -151,7 +151,7 @@ class HorariosFiltradosExport implements FromCollection, WithHeadings, WithStyle
                     ],
                     'fill' => [
                         'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                        'startColor' => ['rgb' => '2E5BBA']
+                        'startColor' => ['rgb' => '34495e']
                     ],
                     'borders' => [
                         'allBorders' => [
@@ -177,7 +177,7 @@ class HorariosFiltradosExport implements FromCollection, WithHeadings, WithStyle
                             $color = 'E3F2FD';
                             break;
                         case 'hibrida':
-                            $color = 'FFFDE7';
+                            $color = 'FFF8E1';
                             break;
                     }
 
@@ -196,7 +196,7 @@ class HorariosFiltradosExport implements FromCollection, WithHeadings, WithStyle
                         'borders' => [
                             'allBorders' => [
                                 'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
-                                'color' => ['rgb' => 'CCCCCC']
+                                'color' => ['rgb' => 'e9ecef']
                             ]
                         ],
                         'alignment' => [
@@ -227,11 +227,12 @@ class HorariosFiltradosExport implements FromCollection, WithHeadings, WithStyle
 
                 // Agregar pie de página
                 $sheet->mergeCells("A" . ($rows + 2) . ":K" . ($rows + 2));
-                $sheet->setCellValue("A" . ($rows + 2), 'Este reporte fue generado automáticamente por el sistema de gestión de horarios.');
+                $sheet->setCellValue("A" . ($rows + 2), 'Sistema de Gestión de Horarios Académicos');
                 $sheet->getStyle("A" . ($rows + 2))->applyFromArray([
                     'font' => [
                         'size' => 10,
-                        'color' => ['rgb' => '666666']
+                        'color' => ['rgb' => '6c757d'],
+                        'bold' => true
                     ],
                     'alignment' => [
                         'horizontal' => 'center',
@@ -244,7 +245,7 @@ class HorariosFiltradosExport implements FromCollection, WithHeadings, WithStyle
                 $sheet->getStyle("A" . ($rows + 3))->applyFromArray([
                     'font' => [
                         'size' => 10,
-                        'color' => ['rgb' => '666666']
+                        'color' => ['rgb' => '6c757d']
                     ],
                     'alignment' => [
                         'horizontal' => 'center',

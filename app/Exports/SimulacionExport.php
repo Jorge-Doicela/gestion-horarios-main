@@ -45,7 +45,7 @@ class SimulacionExport implements FromArray, WithHeadings, WithStyles
         // Encabezados en negrita y con fondo
         $sheet->getStyle('A1:G1')->getFont()->setBold(true)->getColor()->setARGB('FFFFFFFF');
         $sheet->getStyle('A1:G1')->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
-            ->getStartColor()->setARGB('FF1F4E79');
+            ->getStartColor()->setARGB('FF34495e');
         foreach (range('A', 'G') as $col) {
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }

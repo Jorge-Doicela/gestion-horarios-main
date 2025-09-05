@@ -6,107 +6,125 @@
     <meta charset="UTF-8">
     <title>Horario Estudiante</title>
     <style>
+        @page {
+            margin: 15mm;
+            size: A4;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-            padding: 20px;
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            padding: 0;
+            background: white;
+            font-size: 11px;
+            line-height: 1.5;
+            color: #2c3e50;
         }
 
         .header {
             text-align: center;
             margin-bottom: 30px;
-            padding: 20px;
-            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-            color: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            padding: 20px 0;
+            border-bottom: 2px solid #34495e;
         }
 
         .header h1 {
             margin: 0;
             font-size: 24px;
-            font-weight: bold;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
         }
 
         .header p {
-            margin: 5px 0 0 0;
+            margin: 0;
             font-size: 14px;
-            opacity: 0.9;
+            color: #7f8c8d;
+            font-weight: 400;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
             background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
         }
 
         th {
-            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-            color: #374151;
+            background: #34495e;
+            color: white;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
-            font-size: 11px;
+            letter-spacing: 0.5px;
+            font-size: 10px;
             padding: 12px 8px;
-            border: 1px solid #d1d5db;
+            border: none;
         }
 
         td {
-            border: 1px solid #e5e7eb;
-            padding: 8px;
+            border-bottom: 1px solid #e9ecef;
+            padding: 10px 8px;
             text-align: center;
-            font-size: 11px;
+            font-size: 10px;
             vertical-align: top;
         }
 
         .time-cell {
-            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-            color: white;
-            font-weight: bold;
+            background: #ecf0f1;
+            color: #2c3e50;
+            font-weight: 600;
             font-size: 10px;
+            border: 1px solid #bdc3c7;
         }
 
         .presencial {
-            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
-            border: 2px solid #22c55e;
-            border-radius: 8px;
+            background-color: #e8f5e8;
+            border: 2px solid #27ae60;
+            border-radius: 6px;
             padding: 8px;
+            margin: 2px;
         }
 
         .virtual {
-            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-            border: 2px solid #3b82f6;
-            border-radius: 8px;
+            background-color: #e3f2fd;
+            border: 2px solid #3498db;
+            border-radius: 6px;
             padding: 8px;
+            margin: 2px;
         }
 
         .hibrida {
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-            border: 2px solid #f59e0b;
-            border-radius: 8px;
+            background-color: #fff8e1;
+            border: 2px solid #f39c12;
+            border-radius: 6px;
             padding: 8px;
+            margin: 2px;
         }
 
         .class-title {
-            font-weight: bold;
-            font-size: 12px;
+            font-weight: 600;
+            font-size: 11px;
             margin-bottom: 4px;
-            color: #1f2937;
+            color: #2c3e50;
         }
 
         .class-details {
             font-size: 9px;
-            color: #6b7280;
+            color: #7f8c8d;
             line-height: 1.3;
         }
 
         .empty-cell {
-            color: #9ca3af;
+            color: #bdc3c7;
             font-style: italic;
+            font-size: 10px;
         }
     </style>
 </head>
