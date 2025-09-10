@@ -2,6 +2,34 @@
 
 @section('title', 'Dashboard')
 
+
+{{--
+Quiero que mires que son muchos cruds, y muchas vistas a cada crud, ¿habra alguna manera de ingresar
+a esas vistas y al mismo tiempo permanecer en el dashboard para incluso poder cambiar de lugar rapidamente
+sin estar saliendo y entrando, saliendo y entrando?
+
+Sí. Propuesta rápida sin salir del dashboard:
+Opción 1: Panel embebido con pestañas
+Agregar un “workspace” en el dashboard con tabs (Usuarios, Roles, Materias, Días, Horas, etc.).
+Cargar cada CRUD dentro del mismo dashboard vía iframe o Ajax (parciales Blade) sin cambiar de página.
+Beneficio: navegación instantánea y estado visual persistente.
+Opción 2: Modal de pantalla completa
+Abrir cada CRUD en un modal full-screen dentro del dashboard.
+Soporta crear/editar sin perder el contexto del tablero.
+Ideal para acciones rápidas.
+Opción 3: Split-view
+Panel izquierdo con menú fijo; contenido del CRUD a la derecha.
+Cambio de sección sin recargar el dashboard.
+
+Para tu caso, la mejor UX es un enfoque híbrido:
+Workspace con pestañas dentro del dashboard para cambiar entre CRUDs sin salir.
+Formularios de crear/editar en modal de pantalla completa dentro de cada pestaña.
+Ventajas:
+Cambio rapidísimo entre módulos (tabs).
+No pierdes el contexto del dashboard.
+Acciones puntuales (crear/editar) sin navegación extra (modal), con guardado y refresco del listado al cerrar.
+Si estás de acuerdo, lo implemento así.
+--}}
 @section('content')
     <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
